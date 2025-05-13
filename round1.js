@@ -18,7 +18,10 @@ const popupClose = document.getElementById("popup-close");
 
 const roundName = "round1";
 const currentUser = localStorage.getItem("juryUsername");
+/*
 if (!currentUser) window.location.href = "index.html";
+*/
+console.log(currentUser + "-");
 
 let evaluations = {}; // key: participantId, value: true/false
 
