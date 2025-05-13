@@ -17,7 +17,7 @@ const popupMessage = document.getElementById("popup-message");
 const popupClose = document.getElementById("popup-close");
 
 const roundName = "round1";
-const currentUser = localStorage.getItem("juryUsername");
+let currentUser = localStorage.getItem("juryUsername");
 
 if (!currentUser) {
   const promptUsername = prompt("Lütfen kullanıcı adınızı giriniz:");
