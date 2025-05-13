@@ -8,14 +8,19 @@ const popupMessage = document.getElementById("popup-message");
 const popupClose = document.getElementById("popup-close");
 
 // Giriş yapan jürinin kullanıcı adı localStorage'dan alınır
-const currentUser = localStorage.getItem("juryUsername");
+let currentUser = window.localStorage.getItem("juryUsername");
 
-/*
 if (!currentUser) {
-  window.location.href = "index.html";
+  const promptUsername = prompt("Lütfen kullanıcı adınızı giriniz:");
+  if (promptUsername) {
+    currentUser = promptUsername.toLowerCase();
+    localStorage.setItem("juryUsername", currentUser);
+  } else {
+    alert("Kullanıcı adı girilmediği için işlem iptal edildi.");
+    throw new Error("Kullanıcı adı eksik");
+    window.location.href = "index.html";
+  }
 }
-*/
-console.log(currentUser + "-");
 
 // Hangi turda olduğunu Firebase üzerinden kontrol et
 const progressRef = ref(db, `juryProgress/${currentUser}`);
