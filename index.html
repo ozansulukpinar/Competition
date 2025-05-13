@@ -1,0 +1,35 @@
+<!-- Bu proje büyük ve çok modüllü olduğu için ana sayfa, giriş sistemi, jüri ve admin ekranları ayrı dosyalara bölünecek şekilde geliştirilecektir. Firebase bağlantısı, login kontrolü, kullanıcı tipi doğrulaması, yarışma etap akışı ve veri işleme mantıkları JS modülleri olarak yazılacaktır. HTML yapısı örnek olarak giriş ekranıyla başlatılıyor. Devamı aşamalı olarak eklenecek. -->
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Owl Cup - Solo Milonguero Competition</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="login-container">
+    <h1 class="competition-title">"Owl Cup"</h1>
+    <h2 class="competition-title">"İstanbul"</h2>
+    <h2 class="competition-title">"Solo Milonguero Competition"</h2>
+    <h2 class="competition-title">"17 May 2025"</h2>
+    <h2 class="competition-title">"La Madrugada"</h2>
+
+    <div class="login-form">
+      <input type="text" id="username" placeholder="Kullanıcı Adı" maxlength="20">
+      <input type="password" id="password" placeholder="Şifre" maxlength="6">
+      <button id="login-btn" disabled>Giriş Yap</button>
+    </div>
+  </main>
+
+  <!-- Pop-up hataları için -->
+  <div id="popup" class="popup hidden">
+    <span id="popup-message"></span>
+    <span id="popup-close">X</span>
+  </div>
+
+  <script type="module" src="firebase-init.js"></script>
+  <script type="module" src="login.js"></script>
+</body>
+</html>
