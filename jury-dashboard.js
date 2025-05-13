@@ -10,9 +10,12 @@ const popupClose = document.getElementById("popup-close");
 // Giriş yapan jürinin kullanıcı adı localStorage'dan alınır
 const currentUser = localStorage.getItem("juryUsername");
 
+/*
 if (!currentUser) {
   window.location.href = "index.html";
 }
+*/
+console.log(currentUser + "-");
 
 // Hangi turda olduğunu Firebase üzerinden kontrol et
 const progressRef = ref(db, `juryProgress/${currentUser}`);
