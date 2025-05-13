@@ -18,9 +18,19 @@ const popupClose = document.getElementById("popup-close");
 
 const roundName = "round1";
 const currentUser = localStorage.getItem("juryUsername");
-/*
-if (!currentUser) window.location.href = "index.html";
-*/
+
+if (!currentUser) {
+  const promptUsername = prompt("Lütfen kullanıcı adınızı giriniz:");
+  if (promptUsername) {
+    currentUser = promptUsername.toLowerCase();
+    localStorage.setItem("juryUsername", currentUser);
+  } else {
+    alert("Kullanıcı adı girilmediği için işlem iptal edildi.");
+    throw new Error("Kullanıcı adı eksik");
+    window.location.href = "index.html";
+  }
+}
+
 console.log(currentUser + "-");
 
 let evaluations = {}; // key: participantId, value: true/false
