@@ -31,8 +31,6 @@ if (!currentUser) {
   }
 }
 
-console.log(currentUser + "-");
-
 let evaluations = {}; // key: participantId, value: true/false
 
 function showPopup(msg) {
