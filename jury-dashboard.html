@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jüri Paneli</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="jury.css">
+</head>
+<body>
+  <main class="dashboard jury-dashboard">
+    <h1 class="panel-title">Jüri Değerlendirme Paneli</h1>
+
+    <div class="button-grid">
+      <button class="round-btn" id="round-1">1. Çeyrek Final Rondası</button>
+      <button class="round-btn" id="round-2" disabled>2. Çeyrek Final Rondası</button>
+      <button class="round-btn" id="round-3" disabled>3. Çeyrek Final Rondası</button>
+      <button class="round-btn" id="round-4" disabled>4. Çeyrek Final Rondası</button>
+      <button class="round-btn" id="semi-1" disabled>1. Yarı Final Rondası</button>
+      <button class="round-btn" id="semi-2" disabled>2. Yarı Final Rondası</button>
+      <button class="round-btn" id="final" disabled>Final Rondası</button>
+    </div>
+
+    <div id="popup" class="popup hidden">
+      <span id="popup-message"></span>
+      <span id="popup-close">X</span>
+    </div>
+  </main>
+
+  <script type="module" src="jury-dashboard.js"></script>
+</body>
+</html>
