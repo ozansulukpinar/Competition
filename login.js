@@ -54,6 +54,8 @@ loginBtn.addEventListener("click", async () => {
     return showPopup("Hata: Diğer kullanıcı tipine ait şifreyi giriyorsunuz.");
   }
 
+  window.localStorage.setItem("juryUsername", username);
+
   // Kullanıcı rolüne göre yönlendirme
   if (user.role === "jury") {
     window.location.href = "jury-dashboard.html";
