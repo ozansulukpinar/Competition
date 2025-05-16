@@ -22,27 +22,40 @@ if (!currentUser) {
   }
 }
 
+//
 // Hangi turda olduğunu Firebase üzerinden kontrol et
-const progressRef = ref(db, `juryProgress/${currentUser}`);
+  const progressSnap = await get(ref(db, `juryProgress/${juryUsername}`));
+  const completedKey = progressSnap.exists() ? progressSnap.val() : null;
 
-get(progressRef).then(snapshot => {
-  const roundIndex = snapshot.exists() ? snapshot.val() : 0;
+  const roundOrder = [
+    "round1", "round2", "round3", "round4",
+    "round5", "round6", "round7"
+  ];
 
-  // Tüm butonları kapat
-  roundButtons.forEach(btn => btn.disabled = true);
-
-  // Sadece aktif olanı aç ve animasyon ver
-  if (roundIndex < roundButtons.length) {
-    const activeBtn = roundButtons[roundIndex];
-    activeBtn.disabled = false;
-    activeBtn.classList.add("active-blink");
-  } else {
-    showPopup("Yarışma tamamlandı");
+  let nextIndex = 0;
+  if (completedKey) {
+    const completedIndex = roundOrder.indexOf(completedKey);
+    if (completedIndex !== -1 && completedIndex < roundOrder.length - 1) {
+      nextIndex = completedIndex + 1;
+    } else {
+      nextIndex = roundOrder.length; // yarışma tamamlandı
+    }
   }
-}).catch(err => {
-  console.error(err);
-  showPopup("Jüri ilerleme verisi alınamadı.");
-});
+
+  roundButtons.forEach((btn, idx) => {
+    if (idx === nextIndex) {
+      btn.disabled = false;
+      btn.classList.add("active-round");
+    } else {
+      btn.disabled = true;
+      btn.classList.add("disabled-round");
+    }
+  });
+
+  if (nextIndex >= roundOrder.length) {
+    showPopup("Yarışma tamamlandı. Tüm değerlendirmeleri yaptınız.");
+  }
+//
 
 roundButtons.forEach((btn, index) => {
   btn.addEventListener("click", () => {
