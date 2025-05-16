@@ -19,9 +19,9 @@ const popupClose = document.getElementById("popup-close");
 const roundName = "round1";
 let currentUser = window.sessionStorage.getItem("juryUsername");
 
-authenticationControl();
+await authenticationControl();
 
-function authenticationControl() {
+async function authenticationControl() {
   const usersRef = ref(db, 'users');
   const snapshot = await get(usersRef);
   const users = snapshot.val();
