@@ -61,3 +61,15 @@
 .result-table td:has(> .cross) {
   background-color: #fbe2e5;
 }
+
+.back-btn {
+  margin-top: 2rem;
+  display: block;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  background-color: #008080;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
