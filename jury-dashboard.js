@@ -50,7 +50,7 @@ async function authenticationControl() {
   });
 
   if (currentIndex >= roundOrder.length - 1) {
-    showPopup("Yarışma tamamlandı. Tüm değerlendirmeleri yaptınız.");
+    showPopup("Competition is completed.");
   }
 //
 
