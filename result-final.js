@@ -99,10 +99,10 @@ function buildRow(data, votes, average, jurors) {
   return tr;
 }
 
-backBtn.addEventListener("click", goBack);
+//backBtn.addEventListener("click", goBack);
 
-function goBack() {
+//function goBack() {
   //window.location.href = "admin-dashboard.html";
-}
+//}
 
 loadData();
