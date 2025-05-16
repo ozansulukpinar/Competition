@@ -30,6 +30,7 @@ function authenticationControl() {
   }
 }
 
+/*
 if (!currentUser) {
   const promptUsername = prompt("Lütfen kullanıcı adınızı giriniz:");
   if (promptUsername) {
@@ -41,6 +42,7 @@ if (!currentUser) {
     window.location.href = "index.html";
   }
 }
+*/
 
 let evaluations = {}; // key: participantId, value: true/false
 
