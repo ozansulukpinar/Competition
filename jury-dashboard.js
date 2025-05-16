@@ -24,25 +24,23 @@ async function authenticationControl() {
 
 // Hangi turda olduğunu Firebase üzerinden kontrol et
   const progressSnap = await get(ref(db, `juryProgress/${currentUser}`));
-  const completedKey = progressSnap.exists() ? progressSnap.val() : null;
+  const currentKey = progressSnap.exists() ? progressSnap.val() : null;
 
   const roundOrder = [
     "round1", "round2", "round3", "round4",
     "round5", "round6", "round7"
   ];
 
-  let nextIndex = 0;
-  if (completedKey) {
-    const completedIndex = roundOrder.indexOf(completedKey);
-    if (completedIndex !== -1 && completedIndex < roundOrder.length - 1) {
-      nextIndex = completedIndex + 1;
-    } else {
-      nextIndex = roundOrder.length; // yarışma tamamlandı
+  let currentIndex = 0;
+  if (currentKey) {
+    const index = roundOrder.indexOf(currentKey);
+    if (index !== -1) {
+      currentIndex = index;
     }
   }
 
   roundButtons.forEach((btn, idx) => {
-    if (idx === nextIndex) {
+    if (idx === currentIndex) {
       btn.disabled = false;
       btn.classList.add("active-round");
     } else {
@@ -51,7 +49,7 @@ async function authenticationControl() {
     }
   });
 
-  if (nextIndex >= roundOrder.length) {
+  if (currentIndex >= roundOrder.length - 1) {
     showPopup("Yarışma tamamlandı. Tüm değerlendirmeleri yaptınız.");
   }
 //
