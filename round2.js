@@ -59,7 +59,7 @@ function createParticipantRow(participant) {
       switchLabel.textContent = "Turu Geçmesin";
       evaluations[participant.id] = false;
     }
-    checkEnableSave();
+    //checkEnableSave();
   });
 
   evaluations[participant.id] = false;
