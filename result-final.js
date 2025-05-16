@@ -102,7 +102,7 @@ function buildRow(data, votes, average, jurors) {
 backBtn.addEventListener("click", goBack);
 
 function goBack() {
-  window.location.href = "admin-dashboard.html";
+  //window.location.href = "admin-dashboard.html";
 }
 
 loadData();
