@@ -2,7 +2,6 @@
 import { db } from './firebase-init.js';
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
-window.onload = goBack;
 const backBtn = document.getElementById("back-eval");
 
 const roundName = "round7";
