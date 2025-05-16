@@ -77,9 +77,9 @@ async function loadData() {
 
 function renderHeader(table, jurors) {
   const tr = document.createElement("tr");
-  tr.innerHTML = `<th>Yarışmacı No ve Adı Soyadı</th>
+  tr.innerHTML = `<th>Competitor No and Name Surname</th>
     ${jurors.map(j => `<th>${j}</th>`).join("")}
-    <th>Sonuç</th>`;
+    <th>Result</th>`;
   table.appendChild(tr);
 }
 
