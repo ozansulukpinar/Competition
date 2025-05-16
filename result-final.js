@@ -2,6 +2,8 @@
 import { db } from './firebase-init.js';
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
+const backBtn = document.getElementById("back-eval");
+
 const roundName = "round7";
 let currentUser = window.sessionStorage.getItem("username");
 
@@ -96,5 +98,9 @@ function buildRow(data, votes, average, jurors) {
 
   return tr;
 }
+
+backBtn.addEventListener("click", async () => {
+  window.location.href = "admin-dashboard.html";
+});
 
 loadData();
