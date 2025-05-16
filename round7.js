@@ -59,7 +59,7 @@ function createParticipantRow(participant, group) {
       btn.classList.add("active");
 
       selections[participant.id] = i;
-      checkEnableSave();
+      //checkEnableSave();
     });
 
     btn.classList.add(`${group}-rank-${i}`);
