@@ -90,7 +90,7 @@ function checkEnableSave() {
 function loadParticipants() {
   const listRef = ref(db, `roundParticipants/${roundName}`);
   get(listRef).then(snapshot => {
-    if (!snapshot.exists()) return showPopup("Katılımcılar bulunamadı.");
+    if (!snapshot.exists()) return showPopup("Participants not found.");
     const participants = snapshot.val();
     Object.values(participants).forEach(p => {
       const row = createParticipantRow(p, p.role);
@@ -99,7 +99,7 @@ function loadParticipants() {
     });
   }).catch(err => {
     console.error(err);
-    showPopup("Veri okunurken hata oluştu.");
+    showPopup("Error during read the data.");
   });
 }
 
@@ -117,7 +117,7 @@ saveBtn.addEventListener("click", () => {
       const current = snap.exists() ? snap.val() : 0;
       update(progressRef, { '.value': current + 1 }).then(() => {
         saveBtn.disabled = true;
-        alert("Yarışma tamamlandı. Teşekkür ederiz.");
+        showPopup("Competition is completed. Thank you.");
         window.location.href = "jury-dashboard.html";
       });
     });
