@@ -19,6 +19,17 @@ const popupClose = document.getElementById("popup-close");
 const roundName = "round1";
 let currentUser = window.sessionStorage.getItem("juryUsername");
 
+authenticationControl();
+
+function authenticationControl() {
+  const usersRef = ref(db, 'users');
+  const users = snapshot.val();
+  const user = Object.values(users).find(u => u.username === currentUser);
+  if (!user) {
+    window.location.href = "login.html";
+  }
+}
+
 if (!currentUser) {
   const promptUsername = prompt("Lütfen kullanıcı adınızı giriniz:");
   if (promptUsername) {
