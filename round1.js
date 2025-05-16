@@ -27,23 +27,9 @@ async function authenticationControl() {
   const users = snapshot.val();
   const user = Object.values(users).find(u => u.username === currentUser);
   if (!user) {
-    window.location.href = "login.html";
-  }
-}
-
-/*
-if (!currentUser) {
-  const promptUsername = prompt("Lütfen kullanıcı adınızı giriniz:");
-  if (promptUsername) {
-    currentUser = promptUsername.toLowerCase();
-    sessionStorage.setItem("juryUsername", currentUser);
-  } else {
-    alert("Kullanıcı adı girilmediği için işlem iptal edildi.");
-    throw new Error("Kullanıcı adı eksik");
     window.location.href = "index.html";
   }
 }
-*/
 
 let evaluations = {}; // key: participantId, value: true/false
 
