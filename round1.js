@@ -104,25 +104,25 @@ function loadParticipants() {
   });
 }
 
-saveBtn.addEventListener("click", () => {
-  const saveRef = ref(db, `roundResults/${roundName}/${currentUser}`);
-  const dataToSave = Object.entries(evaluations).map(([id, pass]) => ({
-    jury: currentUser,
-    participantId: id,
-    pass: pass
-  }));
-
-  set(saveRef, dataToSave).then(() => {
-    // Jüri ilerleme seviyesini artır
-    const progressRef = ref(db, `juryProgress/${currentUser}`);
-    get(progressRef).then(snap => {
-      const current = snap.exists() ? snap.val() : 0;
-      update(progressRef, { '.value': current + 1 }).then(() => {
-        saveBtn.disabled = true;
-        window.location.href = "jury-dashboard.html";
-      });
-    });
-  });
+saveBtn.addEventListener("click", async () => {
+  try{
+      const saveRef = ref(db, `roundResults/${roundName}/${currentUser}`);
+      const dataToSave = Object.entries(evaluations).map(([id, pass]) => ({
+        jury: currentUser,
+        participantId: id,
+        pass: pass
+      }));
+      // Jüri ilerleme seviyesini artır
+      const progressRef = ref(db, `juryProgress/${currentUser}`);
+      let roundKey = roundName.replace("1", "2");
+      await set(progressRef, roundKey);
+      saveBtn.disabled = true;
+      window.location.href = "jury-dashboard.html";
+  }
+  catch (e) {
+    console.log("Hata:", e);
+    showPopup("Veri kaydedilirken hata oluştu.");
+  }
 });
 
 loadParticipants();
