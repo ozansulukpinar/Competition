@@ -54,7 +54,7 @@ loginBtn.addEventListener("click", async () => {
     return showPopup("Hata: Diğer kullanıcı tipine ait şifreyi giriyorsunuz.");
   }
 
-  window.sessionStorage.setItem("juryUsername", username);
+  window.sessionStorage.setItem("username", username);
 
   // Kullanıcı rolüne göre yönlendirme
   if (user.role === "jury") {
