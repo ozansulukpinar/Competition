@@ -73,3 +73,9 @@
   border-radius: 10px;
   cursor: pointer;
 }
+
+.button-group {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
