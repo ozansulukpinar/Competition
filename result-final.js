@@ -98,11 +98,6 @@ function buildRow(data, votes, average, jurors) {
 }
 
 const backBtn = document.getElementById("back-eval");
-backBtn.disabled = true;
-
-document.addEventListener("DOMContentLoaded", () => {
-  backBtn.disabled = false;
-});
 
 function goBack() {
   window.location.href = "admin-dashboard.html";
