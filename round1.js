@@ -23,6 +23,7 @@ authenticationControl();
 
 function authenticationControl() {
   const usersRef = ref(db, 'users');
+  const snapshot = await get(usersRef);
   const users = snapshot.val();
   const user = Object.values(users).find(u => u.username === currentUser);
   if (!user) {
