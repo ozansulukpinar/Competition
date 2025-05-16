@@ -97,8 +97,11 @@ function buildRow(data, votes, average, jurors) {
   return tr;
 }
 
-$('#back-eval').click(function(){
-    window.location.href = "admin-dashboard.html";
-});
+const backBtn = document.getElementById("back-eval");
+backBtn.addEventListener('click', goBack);
+
+function goBack() {
+  window.location.href = "admin-dashboard.html";
+}
 
 loadData();
