@@ -3,6 +3,20 @@ import { db } from './firebase-init.js';
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
 const roundName = "round3";
+let currentUser = window.sessionStorage.getItem("username");
+
+await authenticationControl();
+
+async function authenticationControl() {
+  const usersRef = ref(db, 'users');
+  const snapshot = await get(usersRef);
+  const users = snapshot.val();
+  const user = Object.values(users).find(u => u.username === currentUser);
+  if (!user) {
+    window.location.href = "index.html";
+  }
+}
+
 const followersTable = document.getElementById("followers-table");
 const leadersTable = document.getElementById("leaders-table");
 
