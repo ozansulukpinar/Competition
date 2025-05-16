@@ -7,24 +7,23 @@ const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popup-message");
 const popupClose = document.getElementById("popup-close");
 
-// Giriş yapan jürinin kullanıcı adı localStorage'dan alınır
-let currentUser = window.localStorage.getItem("juryUsername");
+// Giriş yapan jürinin kullanıcı adı sessionStorage'dan alınır
+let currentUser = window.sessionStorage.getItem("username");
 
-if (!currentUser) {
-  const promptUsername = prompt("Lütfen kullanıcı adınızı giriniz:");
-  if (promptUsername) {
-    currentUser = promptUsername.toLowerCase();
-    localStorage.setItem("juryUsername", currentUser);
-  } else {
-    alert("Kullanıcı adı girilmediği için işlem iptal edildi.");
-    throw new Error("Kullanıcı adı eksik");
+await authenticationControl();
+
+async function authenticationControl() {
+  const usersRef = ref(db, 'users');
+  const snapshot = await get(usersRef);
+  const users = snapshot.val();
+  const user = Object.values(users).find(u => u.username === currentUser);
+  if (!user) {
     window.location.href = "index.html";
   }
 }
 
-//
 // Hangi turda olduğunu Firebase üzerinden kontrol et
-  const progressSnap = await get(ref(db, `juryProgress/${juryUsername}`));
+  const progressSnap = await get(ref(db, `juryProgress/${currentUser}`));
   const completedKey = progressSnap.exists() ? progressSnap.val() : null;
 
   const roundOrder = [
