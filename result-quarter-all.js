@@ -105,4 +105,11 @@ function buildRow(data, votes, passCount, jurors) {
   return tr;
 }
 
+const backBtn = document.getElementById("back-eval");
+  
+function goBack() {
+  window.location.href = "admin-dashboard.html";
+}
+backBtn.addEventListener('click', goBack);
+
 loadData();
