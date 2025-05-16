@@ -10,8 +10,19 @@ const popupMessage = document.getElementById("popup-message");
 const popupClose = document.getElementById("popup-close");
 
 const roundName = "round6";
-const currentUser = localStorage.getItem("juryUsername");
-if (!currentUser) window.location.href = "index.html";
+let currentUser = window.sessionStorage.getItem("juryUsername");
+
+await authenticationControl();
+
+async function authenticationControl() {
+  const usersRef = ref(db, 'users');
+  const snapshot = await get(usersRef);
+  const users = snapshot.val();
+  const user = Object.values(users).find(u => u.username === currentUser);
+  if (!user) {
+    window.location.href = "index.html";
+  }
+}
 
 let evaluations = {};
 
