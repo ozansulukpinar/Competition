@@ -17,13 +17,13 @@ const popupMessage = document.getElementById("popup-message");
 const popupClose = document.getElementById("popup-close");
 
 const roundName = "round1";
-let currentUser = window.localStorage.getItem("juryUsername");
+let currentUser = window.sessionStorage.getItem("juryUsername");
 
 if (!currentUser) {
   const promptUsername = prompt("Lütfen kullanıcı adınızı giriniz:");
   if (promptUsername) {
     currentUser = promptUsername.toLowerCase();
-    localStorage.setItem("juryUsername", currentUser);
+    sessionStorage.setItem("juryUsername", currentUser);
   } else {
     alert("Kullanıcı adı girilmediği için işlem iptal edildi.");
     throw new Error("Kullanıcı adı eksik");
