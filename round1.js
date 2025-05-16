@@ -55,19 +55,19 @@ function createParticipantRow(participant) {
 
   const switchLabel = document.createElement("div");
   switchLabel.className = "switch-label";
-  switchLabel.textContent = "Turu Geçmesin";
+  switchLabel.textContent = "No";
 
   switchLabel.dataset.state = "no";
   switchLabel.addEventListener("click", () => {
     if (switchLabel.dataset.state === "no") {
       switchLabel.dataset.state = "yes";
       switchLabel.classList.add("active");
-      switchLabel.textContent = "Turu Geçsin";
+      switchLabel.textContent = "Yes";
       evaluations[participant.id] = true;
     } else {
       switchLabel.dataset.state = "no";
       switchLabel.classList.remove("active");
-      switchLabel.textContent = "Turu Geçmesin";
+      switchLabel.textContent = "No";
       evaluations[participant.id] = false;
     }
     //checkEnableSave();
@@ -90,7 +90,7 @@ function checkEnableSave() {
 function loadParticipants() {
   const listRef = ref(db, `roundParticipants/${roundName}`);
   get(listRef).then(snapshot => {
-    if (!snapshot.exists()) return showPopup("Katılımcılar bulunamadı.");
+    if (!snapshot.exists()) return showPopup("Participants not found.");
 
     const participants = snapshot.val();
     Object.values(participants).forEach(p => {
@@ -100,7 +100,7 @@ function loadParticipants() {
     });
   }).catch(err => {
     console.error(err);
-    showPopup("Veri okunurken hata oluştu.");
+    showPopup("Error during read the data.");
   });
 }
 
@@ -121,7 +121,7 @@ saveBtn.addEventListener("click", async () => {
   }
   catch (e) {
     console.log("Hata:", e);
-    showPopup("Veri kaydedilirken hata oluştu.");
+    showPopup("Error during write the data.");
   }
 });
 
