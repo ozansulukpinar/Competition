@@ -17,7 +17,7 @@ const popupMessage = document.getElementById("popup-message");
 const popupClose = document.getElementById("popup-close");
 
 const roundName = "round4";
-let currentUser = window.sessionStorage.getItem("juryUsername");
+let currentUser = window.sessionStorage.getItem("username");
 
 await authenticationControl();
 
