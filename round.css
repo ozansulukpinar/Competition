@@ -28,6 +28,7 @@
 
 .follower-group, .leader-group {
   flex: 1 1 45%;
+  min-width: 320px;
 }
 
 .follower-group h2, .leader-group h2 {
@@ -50,6 +51,9 @@
   font-size: 1rem;
   color: #222;
   flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .toggle-switch {
