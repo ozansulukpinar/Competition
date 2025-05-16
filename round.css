@@ -89,3 +89,9 @@
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+.button-group {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
