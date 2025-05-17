@@ -91,8 +91,8 @@ function loadParticipants() {
   const listRef = ref(db, `roundParticipants/${roundName}`);
   get(listRef).then(snapshot => {
     if (!snapshot.exists()) { 
-      showPopup("Participants not found.");
       window.location.href = "jury-dashboard.html";
+      showPopup("Participants not found.");
     }
     const participants = snapshot.val();
     Object.values(participants).forEach(p => {
