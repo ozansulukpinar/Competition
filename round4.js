@@ -199,13 +199,12 @@ saveBtn.addEventListener("click", async () => {
       const current = snap.exists() ? snap.val() : 0;
       const nextRoundName = getNextRoundName(roundName);
       await set(progressRef, nextRoundName).then(() => {
+        await generateSemiFinalistsIfReady();
         saveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
       });
     });
   });
-
-  await generateSemiFinalistsIfReady();
 });
 
 loadParticipants();
