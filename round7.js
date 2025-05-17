@@ -104,7 +104,6 @@ function loadParticipants() {
     });
   }).catch(err => {
       console.error(err.message);
-      showPopup("Error during read the data.");
   });
 }
 
