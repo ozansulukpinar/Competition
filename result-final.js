@@ -54,7 +54,7 @@ async function loadData() {
 
   Object.entries(allVotes).forEach(([pid, { total, count, votes, data }]) => {
     if (!data) return;
-    const avg = Math.round(total / count);
+    const avg = total / count;
     const row = buildRow(data, votes, avg, juryUsernames);
     const obj = { row, avg };
     if (data.role === "follower") followerRows.push(obj);
@@ -91,7 +91,7 @@ function buildRow(data, votes, average, jurors) {
   });
 
   const tdAvg = document.createElement("td");
-  tdAvg.textContent = average;
+  tdAvg.textContent = average.toFixed(2);
   tr.appendChild(tdAvg);
 
   return tr;
