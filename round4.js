@@ -193,7 +193,7 @@ saveBtn.addEventListener("click", async () => {
     pass: pass
   }));
 
-  set(saveRef, dataToSave).then(() => {
+  set(saveRef, dataToSave).then( async () => {
     const progressRef = ref(db, `juryProgress/${currentUser}`);
     get(progressRef).then(snap => {
       const current = snap.exists() ? snap.val() : 0;
