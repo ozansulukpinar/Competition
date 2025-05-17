@@ -198,10 +198,15 @@ saveBtn.addEventListener("click", async () => {
     get(progressRef).then(snap => {
       const current = snap.exists() ? snap.val() : 0;
       const nextRoundName = getNextRoundName(roundName);
-      await set(progressRef, nextRoundName).then(() => {
+      await set(progressRef, nextRoundName);
+      saveBtn.disabled = true;
+      window.location.href = "jury-dashboard.html";
+      /*
+      set(progressRef, nextRoundName).then(() => {
         saveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
       });
+      */
     });
   });
 
