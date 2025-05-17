@@ -110,7 +110,7 @@ function getNextRoundName(currentName) {
   return prefix + (number + 1);
 }
 
-// Çeyrek finallerdeki en iyi 10 follower ve  10 leader rastgele olarak round5 ve round6'ya dağıtılır
+// Çeyrek finallerdeki en iyi 10 follower ve 10 leader rastgele olarak round5 ve round6'ya dağıtılır
 async function generateSemiFinalistsIfReady() {
   try {
     const [usersSnap, progressSnap] = await Promise.all([
@@ -182,7 +182,7 @@ async function generateSemiFinalistsIfReady() {
     ]);
   } catch (err) {
     console.error(err);
-    showPopup("Error during create the data.");
+    showPopup("Error during save semi-finalists");
   }
 }
 
