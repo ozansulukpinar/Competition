@@ -38,6 +38,7 @@ async function authenticationControl() {
       currentIndex = index;
     } else{
       showPopup("Competition is completed."); // currentKey == end
+      currentIndex = -1;
     }
   }
 
