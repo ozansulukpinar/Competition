@@ -70,12 +70,12 @@ async function initializeCompetitionRounds() {
       leaders: shuffledLeaders.splice(0, 5)
     },
     round2: {
-      followers: shuffledFollowers.splice(0, 4),
-      leaders: shuffledLeaders.splice(0, 4)
+      followers: shuffledFollowers.splice(0, 5),
+      leaders: shuffledLeaders.splice(0, 5)
     },
     round3: {
-      followers: shuffledFollowers.splice(0, 3),
-      leaders: shuffledLeaders.splice(0, 3)
+      followers: shuffledFollowers.splice(0, 5),
+      leaders: shuffledLeaders.splice(0, 5)
     },
     round4: {
       followers: shuffledFollowers,
