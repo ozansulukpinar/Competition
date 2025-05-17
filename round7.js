@@ -91,10 +91,9 @@ function loadParticipants() {
   const listRef = ref(db, `roundParticipants/${roundName}`);
   get(listRef).then(snapshot => {
     if (!snapshot.exists()) {
-      setTimeout(function() { 
-        if (showPopup("Other juries did not complete their evaluation. Please try again later.")) { 
+      showPopup("Other juries did not complete their evaluation. Please try again later.");
+      setTimeout(function() {
           window.location.href = "jury-dashboard.html";
-        }
       }, 2500);
     }
     const participants = snapshot.val();
