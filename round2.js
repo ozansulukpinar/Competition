@@ -114,7 +114,7 @@ saveBtn.addEventListener("click", () => {
     const progressRef = ref(db, `juryProgress/${currentUser}`);
     get(progressRef).then(snap => {
       const current = snap.exists() ? snap.val() : 0;
-      update(progressRef, { '.value': current + 1 }).then(() => {
+      set(progressRef, "round3").then(() => {
         saveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
       });
