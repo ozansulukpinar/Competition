@@ -22,7 +22,7 @@ async function authenticationControl() {
   }
 }
 
-// Hangi turda olduğunu Firebase üzerinden kontrol et
+// Hangi turda olduğu Firebase üzerinden kontrol edilir
   const progressSnap = await get(ref(db, `juryProgress/${currentUser}`));
   const currentKey = progressSnap.exists() ? progressSnap.val() : null;
 
