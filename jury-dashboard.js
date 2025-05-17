@@ -55,8 +55,10 @@ async function authenticationControl() {
 roundButtons.forEach((btn, index) => {
   btn.addEventListener("click", () => {
     // Her turun ayrı sayfasına yönlendir
-    if(index === 7) window.location.href = `reround.html`;
-    window.location.href = `round${index + 1}.html`;
+    if(index == 7) 
+      window.location.href = `reround.html`;
+    else
+      window.location.href = `round${index + 1}.html`;
   });
 });
 
