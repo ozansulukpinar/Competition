@@ -103,7 +103,7 @@ function loadParticipants() {
       else leadersDiv.appendChild(row);
     });
   }).catch(err => {
-      console.error(err.message);
+      console.log(err.message);
   });
 }
 
