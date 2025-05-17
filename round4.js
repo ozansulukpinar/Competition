@@ -181,7 +181,8 @@ async function generateSemiFinalistsIfReady() {
       }, {}))
     ]);
   } catch (err) {
-    console.error("Yarı finalist oluşturulurken hata:", err);
+    console.error(err);
+    showPopup("Error during create the data.");
   }
 }
 
