@@ -82,8 +82,10 @@ function loadParticipants() {
   const listRef = ref(db, `roundParticipants/${roundName}`);
   get(listRef).then(snapshot => {
     if (!snapshot.exists()) { 
-      showPopup("Participants not found.");
-      window.location.href = "jury-dashboard.html";
+      showPopup("Other juries did not complete their evaluation. Please try again later.");
+      setTimeout(function() {
+          window.location.href = "jury-dashboard.html";
+      }, 1500);
     }
     const participants = snapshot.val();
     Object.values(participants).forEach(p => {
@@ -92,7 +94,7 @@ function loadParticipants() {
       else leadersDiv.appendChild(row);
     });
   }).catch(err => {
-    console.error(err);
+    console.error(err.message);
     showPopup("Error during read the data.");
   });
 }
