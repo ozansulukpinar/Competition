@@ -36,6 +36,8 @@ async function authenticationControl() {
     const index = roundOrder.indexOf(currentKey);
     if (index !== -1) {
       currentIndex = index;
+    } else{
+      showPopup("Competition is completed."); // currentKey == end 
     }
   }
 
@@ -48,11 +50,6 @@ async function authenticationControl() {
       btn.classList.add("disabled-round");
     }
   });
-
-  if (currentIndex >= roundOrder.length - 1) {
-    showPopup("Competition is completed.");
-  }
-//
 
 roundButtons.forEach((btn, index) => {
   btn.addEventListener("click", () => {
