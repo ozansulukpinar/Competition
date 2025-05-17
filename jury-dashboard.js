@@ -27,8 +27,8 @@ async function authenticationControl() {
   const currentKey = progressSnap.exists() ? progressSnap.val() : null;
 
   const roundOrder = [
-    "round1", "round2", "round3", "round4", "reround",
-    "round5", "round6", "round7"
+    "round1", "round2", "round3", "round4",
+    "round5", "round6", "round7", "reround"
   ];
 
   let currentIndex = 0;
