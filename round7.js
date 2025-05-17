@@ -1,4 +1,4 @@
-// round7.js (Final değerlendirmesi - sıralama için 1-4 arası seçim yapılır)
+// round7.js (Final değerlendirmesi - sıralama için 1-6 arası seçim yapılır)
 import { db } from './firebase-init.js';
 import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
@@ -51,28 +51,6 @@ function createParticipantRow(participant, group) {
     btn.className = "switch-label";
     btn.textContent = i;
 
-    btn.addEventListener("click", () => {
-      // Clear previous selection
-      document.querySelectorAll(`.${group}-rank-${i}`).forEach(b => {
-        if (b !== btn) b.disabled = true;
-      });
-
-      // Enable other choices in same group
-      document.querySelectorAll(`.${group}-row`).forEach(r => {
-        if (r !== row) {
-          const target = r.querySelector(`.switch-label:nth-child(${i})`);
-          if (target) target.disabled = true;
-        }
-      });
-
-      // Reset all buttons
-      buttons.querySelectorAll(".switch-label").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-
-      selections[participant.id] = i;
-      //checkEnableSave();
-    });
-
     btn.classList.add(`${group}-rank-${i}`);
     buttons.appendChild(btn);
   }
@@ -80,6 +58,42 @@ function createParticipantRow(participant, group) {
   row.classList.add(`${group}-row`);
   row.appendChild(label);
   row.appendChild(buttons);
+
+  // Butonlar eklendikten sonra event listener'lar tanımlanır
+  buttons.querySelectorAll(".switch-label").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const selectedRank = parseInt(btn.textContent);
+
+      // Önceki seçimi bul
+      const previousRank = selections[participant.id];
+
+      // Seçim güncellenmeden önce, önceki rank'ı diğer satırlarda ENABLE et
+      if (previousRank) {
+        document.querySelectorAll(`.${group}-row`).forEach(otherRow => {
+          if (otherRow !== row) {
+            const otherBtn = otherRow.querySelector(`.switch-label:nth-child(${previousRank})`);
+            if (otherBtn) otherBtn.disabled = false;
+          }
+        });
+      }
+
+      // Yeni seçilen rank'ı diğer satırlarda DISABLE et
+      document.querySelectorAll(`.${group}-row`).forEach(otherRow => {
+        if (otherRow !== row) {
+          const target = otherRow.querySelector(`.switch-label:nth-child(${selectedRank})`);
+          if (target) target.disabled = true;
+        }
+      });
+
+      // Bu satırdaki tüm butonları pasifleştir
+      buttons.querySelectorAll(".switch-label").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      // Seçimi güncelle
+      selections[participant.id] = selectedRank;
+    });
+  });
+
   return row;
 }
 
