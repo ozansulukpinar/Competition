@@ -103,8 +103,10 @@ function loadParticipants() {
       else leadersDiv.appendChild(row);
     });
   }).catch(err => {
-    console.error(err);
-    showPopup("Error during read the data.");
+    if(err){
+      console.error(err);
+      showPopup("Error during read the data.");
+    }
   });
 }
 
