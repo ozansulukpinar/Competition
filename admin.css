@@ -66,6 +66,10 @@ body {
   transform: translateY(-2px);
 }
 
+#reround {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .admin-buttons-row:nth-child(1) {
     grid-template-columns: repeat(2, 1fr);
