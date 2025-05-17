@@ -77,6 +77,16 @@
   background-color: green;
 }
 
+.switch-label.dimmed {
+  background-color: #444;
+  color: white;
+}
+
+.switch-label.inactive {
+  background-color: red;
+  color: white;
+}
+
 .save-btn {
   margin-top: 2rem;
   display: block;
