@@ -81,7 +81,10 @@ function checkEnableSave() {
 function loadParticipants() {
   const listRef = ref(db, `roundParticipants/${roundName}`);
   get(listRef).then(snapshot => {
-    if (!snapshot.exists()) return showPopup("Participants not found.");
+    if (!snapshot.exists()) { 
+      return showPopup("Participants not found.");
+      window.location.href = "jury-dashboard.html";
+    }
     const participants = snapshot.val();
     Object.values(participants).forEach(p => {
       const row = createParticipantRow(p);
