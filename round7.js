@@ -45,7 +45,7 @@ function createParticipantRow(participant, group) {
   const buttons = document.createElement("div");
   buttons.className = "toggle-switch";
 
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 7; i++) {
     const btn = document.createElement("button");
     btn.className = "switch-label inactive";
     btn.textContent = i;
