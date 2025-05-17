@@ -39,8 +39,9 @@
 
 .participant-row {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 1rem;
   background-color: #f9f9f9;
   padding: 0.75rem 1rem;
   border: 1px solid #ccc;
@@ -50,7 +51,7 @@
 .participant-label {
   font-size: 1rem;
   color: #222;
-  flex: 1;
+  flex: 0 0 45%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -58,19 +59,21 @@
 
 .toggle-switch {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: flex-start;
 }
 
 .switch-label {
   font-weight: bold;
   color: white;
-  background-color: red;
   border-radius: 8px;
   padding: 0.4rem 0.75rem;
   cursor: pointer;
   user-select: none;
+  transition: background-color 0.3s;
+  background-color: red;
 }
 
 .switch-label.active {
