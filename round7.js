@@ -1,4 +1,4 @@
-// round7.js
+// Güncellenmiş round7.js – satır ve sütun kısıtlamalarıyla
 import { db } from './firebase-init.js';
 import { ref, get, set } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
@@ -35,6 +35,8 @@ popupClose.addEventListener("click", () => popup.classList.add("hidden"));
 function createParticipantRow(participant, group) {
   const row = document.createElement("div");
   row.className = `participant-row ${group}-row`;
+  row.dataset.participantId = participant.id;
+  row.dataset.group = group;
 
   const label = document.createElement("div");
   label.className = "participant-label";
@@ -50,12 +52,29 @@ function createParticipantRow(participant, group) {
     btn.dataset.rank = i;
 
     btn.addEventListener("click", () => {
-      // Bu satırdaki tüm butonları temizle
-      buttons.querySelectorAll(".switch-label").forEach(b => b.classList.remove("active"));
+      // Aynı gruptaki satır ve sütunu temizle
+      const groupRows = document.querySelectorAll(`.${group}-row`);
+      groupRows.forEach(r => {
+        const pid = r.dataset.participantId;
+        const cellBtns = r.querySelectorAll(".switch-label");
+
+        // Aynı satırın tüm butonlarını pasifleştir
+        if (r === row) {
+          cellBtns.forEach(b => b.classList.remove("active"));
+        }
+
+        // Aynı sütundaki diğer satırların butonlarını devre dışı bırak
+        cellBtns.forEach(b => {
+          if (b.dataset.rank === btn.dataset.rank && r !== row) {
+            b.classList.remove("active");
+          }
+        });
+      });
+
+      // Yeni seçim ata
+      selections[participant.id] = parseInt(btn.textContent);
       btn.classList.add("active");
 
-      // Seçimi güncelle
-      selections[participant.id] = i;
       updateVisualFeedback(group);
       checkEnableSave();
     });
@@ -71,28 +90,26 @@ function createParticipantRow(participant, group) {
 function updateVisualFeedback(group) {
   const rows = document.querySelectorAll(`.${group}-row`);
   const selectedRanks = {};
-  const selectedRows = {};
+  const selectedParticipants = new Set(Object.keys(selections));
 
-  rows.forEach(row => {
-    const id = row.querySelector(".participant-label").textContent.split(" - ")[0];
-    const rank = selections[id];
-    if (rank) {
+  Object.entries(selections).forEach(([pid, rank]) => {
+    const el = document.querySelector(`.${group}-row[data-participant-id='${pid}']`);
+    if (el) {
       selectedRanks[rank] = true;
-      selectedRows[id] = true;
     }
   });
 
   rows.forEach(row => {
-    const id = row.querySelector(".participant-label").textContent.split(" - ")[0];
+    const id = row.dataset.participantId;
     const buttons = row.querySelectorAll(".switch-label");
 
     buttons.forEach(btn => {
+      const rank = btn.dataset.rank;
       btn.classList.remove("active", "dimmed", "inactive");
 
-      const rank = btn.textContent;
       if (selections[id] && selections[id].toString() === rank) {
         btn.classList.add("active");
-      } else if (selectedRanks[rank] || selectedRows[id]) {
+      } else if (selectedRanks[rank] || selectedParticipants.has(id)) {
         btn.classList.add("dimmed");
       } else {
         btn.classList.add("inactive");
@@ -102,9 +119,26 @@ function updateVisualFeedback(group) {
 }
 
 function checkEnableSave() {
-  const allRanks = Object.values(selections);
-  const uniqueRanks = new Set(allRanks);
-  saveBtn.disabled = allRanks.length !== 12 || uniqueRanks.size < 6;
+  const followerRanks = new Set();
+  const leaderRanks = new Set();
+  const followerIds = new Set();
+  const leaderIds = new Set();
+
+  Object.entries(selections).forEach(([id, rank]) => {
+    const isFollower = !!document.querySelector(`.follower-row[data-participant-id='${id}']`);
+    if (isFollower) {
+      followerRanks.add(rank);
+      followerIds.add(id);
+    } else {
+      leaderRanks.add(rank);
+      leaderIds.add(id);
+    }
+  });
+
+  const validFollowers = followerRanks.size === 6 && followerIds.size === 6;
+  const validLeaders = leaderRanks.size === 6 && leaderIds.size === 6;
+
+  saveBtn.disabled = !(validFollowers && validLeaders);
 }
 
 function loadParticipants() {
@@ -125,19 +159,24 @@ function loadParticipants() {
 }
 
 saveBtn.addEventListener("click", () => {
-  const groupRanks = { follower: {}, leader: {} };
-  const groupCounts = { follower: 0, leader: 0 };
+  const followerRanks = {}, leaderRanks = {};
+  const followerIDs = [], leaderIDs = [];
 
   Object.entries(selections).forEach(([id, rank]) => {
-    const el = document.querySelector(`.participant-label:contains('${id}')`);
-    const group = followersDiv.innerHTML.includes(id) ? "follower" : "leader";
+    const isFollower = !!document.querySelector(`.follower-row[data-participant-id='${id}']`);
+    const group = isFollower ? "follower" : "leader";
 
-    groupRanks[group][rank] = (groupRanks[group][rank] || 0) + 1;
-    groupCounts[group]++;
+    if (group === "follower") {
+      followerRanks[rank] = (followerRanks[rank] || 0) + 1;
+      followerIDs.push(id);
+    } else {
+      leaderRanks[rank] = (leaderRanks[rank] || 0) + 1;
+      leaderIDs.push(id);
+    }
   });
 
-  const validFollowers = groupCounts.follower === 6 && Object.values(groupRanks.follower).every(v => v === 1);
-  const validLeaders = groupCounts.leader === 6 && Object.values(groupRanks.leader).every(v => v === 1);
+  const validFollowers = followerIDs.length === 6 && Object.values(followerRanks).every(v => v === 1);
+  const validLeaders = leaderIDs.length === 6 && Object.values(leaderRanks).every(v => v === 1);
 
   if (!validFollowers) return showPopup("Please check your rankings for the Followers group.");
   if (!validLeaders) return showPopup("Please check your rankings for the Leaders group.");
