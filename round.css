@@ -39,30 +39,39 @@
 
 .participant-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
   background-color: #f9f9f9;
   padding: 0.75rem 1rem;
   border: 1px solid #ccc;
   border-radius: 8px;
+  gap: 1rem;
 }
 
 .participant-label {
   font-size: 1rem;
   color: #222;
-  flex: 1 1 100%;
+  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.toggle-switch {
+/* Toggle switch for final round (6 buttons in a row) */
+.toggle-switch.multiple {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   flex: 1 1 100%;
   justify-content: flex-start;
+}
+
+/* Toggle switch for single button next to label */
+.toggle-switch.single {
+  display: flex;
+  justify-content: flex-end;
+  flex: 0 0 auto;
 }
 
 .switch-label {
@@ -74,9 +83,7 @@
   user-select: none;
   transition: background-color 0.3s;
   background-color: red;
-  flex: 1 1 auto;
-  max-width: calc(100% / 6 - 0.5rem);
-  text-align: center;
+  flex-shrink: 0;
 }
 
 .switch-label.active {
