@@ -102,6 +102,61 @@ function getNextRoundName(currentName) {
   return prefix + (number + 1);
 }
 
+// Yarı finallerdeki en iyi 6 follower ve 6 leader finale seçilir
+async function generateFinalistsIfReady() {
+  try {
+    const [usersSnap, progressSnap] = await Promise.all([
+      get(ref(db, 'users')),
+      get(ref(db, 'juryProgress'))
+    ]);
+
+    if (!usersSnap.exists() || !progressSnap.exists()) return;
+    const users = Object.values(usersSnap.val()).filter(u => u.role === 'jury');
+    const progress = progressSnap.val();
+
+    const allDone = users.every(u => progress[u.username] === 'round7');
+    if (!allDone) return;
+
+    const [r5, r6, participantsSnap] = await Promise.all([
+      get(ref(db, 'roundResults/round5')),
+      get(ref(db, 'roundResults/round6')),
+      get(ref(db, 'participants'))
+    ]);
+
+    if (!r5.exists() || !r6.exists() || !participantsSnap.exists()) return;
+
+    const participants = Object.values(participantsSnap.val());
+    const allResults = [r5.val(), r6.val()];
+    const scores = {};
+
+    allResults.forEach(result => {
+      Object.values(result).forEach(evals => {
+        evals.forEach(({ participantId, pass }) => {
+          if (!scores[participantId]) scores[participantId] = 0;
+          if (pass) scores[participantId]++;
+        });
+      });
+    });
+
+    const enriched = participants.map(p => ({ ...p, score: scores[p.id] || 0 }));
+    const topFollowers = enriched.filter(p => p.role === 'follower')
+                                 .sort((a, b) => b.score - a.score)
+                                 .slice(0, 6);
+    const topLeaders = enriched.filter(p => p.role === 'leader')
+                                .sort((a, b) => b.score - a.score)
+                                .slice(0, 6);
+
+    const round7 = [...topFollowers, ...topLeaders];
+    await set(ref(db, 'roundParticipants/round7'), round7.reduce((acc, val, i) => {
+      acc[i] = val;
+      return acc;
+    }, {}));
+  } catch (err) {
+    console.error(err);
+    showPopup("Error during save finalists.");
+  }
+}
+
 saveBtn.addEventListener("click", () => {
   const saveRef = ref(db, `roundResults/${roundName}/${currentUser}`);
   const dataToSave = Object.entries(evaluations).map(([id, pass]) => ({
@@ -115,7 +170,8 @@ saveBtn.addEventListener("click", () => {
     get(progressRef).then(snap => {
       const current = snap.exists() ? snap.val() : 0;
       const nextRoundName = getNextRoundName(roundName);
-      set(progressRef, nextRoundName).then(() => {
+      await set(progressRef, nextRoundName).then(async () => {
+        await generateFinalistsIfReady();
         saveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
       });
