@@ -90,15 +90,12 @@ function checkEnableSave() {
 function loadParticipants() {
   const listRef = ref(db, `roundParticipants/${roundName}`);
   get(listRef).then(snapshot => {
-    if (!snapshot.exists()) { 
-      //window.location.href = "jury-dashboard.html";
-      //showPopup("Participants not found.");
-
+    if (!snapshot.exists()) {
       setTimeout(function() { 
-        if (window.confirm("Other juries did not complete their evaluation. Please try again later.")) { 
+        if (showPopup("Other juries did not complete their evaluation. Please try again later.")) { 
           window.location.href = "jury-dashboard.html";
         }
-      }, 10000);
+      }, 2500);
     }
     const participants = snapshot.val();
     Object.values(participants).forEach(p => {
