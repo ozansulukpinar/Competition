@@ -41,14 +41,14 @@ async function loadData() {
     if (!snap.exists()) return;
     const resultData = snap.val();
     for (const [juryUsername, evaluations] of Object.entries(resultData)) {
-      evaluations.forEach(eval => {
-        const pid = eval.participantId;
+      evaluations.forEach(evaluation => {
+        const pid = evaluation.participantId;
         if (!allResults[pid]) {
           allResults[pid] = { passCount: 0, votes: {}, data: null };
         }
         allResults[pid].votes[juryUsername] =
-          (allResults[pid].votes[juryUsername] || 0) + (eval.pass ? 1 : 0);
-        if (eval.pass) allResults[pid].passCount++;
+          (allResults[pid].votes[juryUsername] || 0) + (evaluation.pass ? 1 : 0);
+        if (evaluation.pass) allResults[pid].passCount++;
       });
     }
   });
