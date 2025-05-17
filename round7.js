@@ -1,6 +1,6 @@
 // round7.js (Final değerlendirmesi - sıralama için 1-6 arası seçim yapılır)
 import { db } from './firebase-init.js';
-import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+import { ref, get, set } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
 const followersDiv = document.getElementById("followers");
 const leadersDiv = document.getElementById("leaders");
@@ -37,7 +37,7 @@ popupClose.addEventListener("click", () => {
 
 function createParticipantRow(participant, group) {
   const row = document.createElement("div");
-  row.className = "participant-row";
+  row.className = `participant-row ${group}-row`;
 
   const label = document.createElement("div");
   label.className = "participant-label";
@@ -50,55 +50,86 @@ function createParticipantRow(participant, group) {
     const btn = document.createElement("button");
     btn.className = "switch-label";
     btn.textContent = i;
+    btn.dataset.rank = i;
 
-    btn.classList.add(`${group}-rank-${i}`);
-    buttons.appendChild(btn);
-  }
-
-  row.classList.add(`${group}-row`);
-  row.appendChild(label);
-  row.appendChild(buttons);
-
-  // Butonlar eklendikten sonra event listener'lar tanımlanır
-  buttons.querySelectorAll(".switch-label").forEach(btn => {
     btn.addEventListener("click", () => {
-      const selectedRank = parseInt(btn.textContent);
-
-      // Önceki seçimi bul
-      const previousRank = selections[participant.id];
-
-      // Seçim güncellenmeden önce, önceki rank'ı diğer satırlarda ENABLE et
-      if (previousRank) {
-        document.querySelectorAll(`.${group}-row`).forEach(otherRow => {
-          if (otherRow !== row) {
-            const otherBtn = otherRow.querySelector(`.switch-label:nth-child(${previousRank})`);
-            if (otherBtn) otherBtn.disabled = false;
-          }
-        });
-      }
-
-      // Yeni seçilen rank'ı diğer satırlarda DISABLE et
-      document.querySelectorAll(`.${group}-row`).forEach(otherRow => {
-        if (otherRow !== row) {
-          const target = otherRow.querySelector(`.switch-label:nth-child(${selectedRank})`);
-          if (target) target.disabled = true;
-        }
-      });
-
-      // Bu satırdaki tüm butonları pasifleştir
+      // Aynı satırda önceki seçimi kaldır
       buttons.querySelectorAll(".switch-label").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
-      // Seçimi güncelle
-      selections[participant.id] = selectedRank;
-    });
-  });
+      // Seçimi kaydet
+      selections[participant.id] = i;
 
+      // Güncel stil işlemleri
+      updateVisualFeedback(group);
+      checkEnableSave();
+    });
+
+    buttons.appendChild(btn);
+  }
+
+  row.appendChild(label);
+  row.appendChild(buttons);
   return row;
 }
 
+function updateVisualFeedback(group) {
+  const rows = document.querySelectorAll(`.${group}-row`);
+  const selectedRanks = {};
+  const selectedRows = {};
+
+  rows.forEach(row => {
+    const id = row.querySelector(".participant-label").textContent.split(" - ")[0];
+    const rank = selections[id];
+    if (rank) {
+      selectedRanks[rank] = true;
+      selectedRows[id] = true;
+    }
+  });
+
+  rows.forEach(row => {
+    const id = row.querySelector(".participant-label").textContent.split(" - ")[0];
+    const buttons = row.querySelectorAll(".switch-label");
+
+    buttons.forEach(btn => {
+      const btnRank = btn.textContent;
+
+      if (btn.classList.contains("active")) {
+        btn.style.backgroundColor = "green";
+        btn.style.color = "white";
+      } else if (selectedRanks[btnRank] || selectedRows[id]) {
+        btn.style.backgroundColor = "#444";
+        btn.style.color = "white";
+      } else {
+        btn.style.backgroundColor = "red";
+        btn.style.color = "white";
+      }
+    });
+  });
+}
+
 function checkEnableSave() {
-  saveBtn.disabled = Object.keys(selections).length < 8;
+  const followerRanks = {};
+  const leaderRanks = {};
+  let followerCount = 0;
+  let leaderCount = 0;
+
+  for (const [id, rank] of Object.entries(selections)) {
+    const el = document.querySelector(`[data-id='${id}']`) || {};
+    const group = id in followersDiv.innerHTML ? "follower" : "leader";
+    if (group === "follower") {
+      followerRanks[rank] = (followerRanks[rank] || 0) + 1;
+      followerCount++;
+    } else {
+      leaderRanks[rank] = (leaderRanks[rank] || 0) + 1;
+      leaderCount++;
+    }
+  }
+
+  const validFollowers = followerCount === 6 && Object.values(followerRanks).every(v => v === 1);
+  const validLeaders = leaderCount === 6 && Object.values(leaderRanks).every(v => v === 1);
+
+  saveBtn.disabled = !(validFollowers && validLeaders);
 }
 
 function loadParticipants() {
@@ -106,10 +137,12 @@ function loadParticipants() {
   get(listRef).then(snapshot => {
     if (!snapshot.exists()) {
       showPopup("Other juries did not complete their evaluation. Please try again later.");
-      setTimeout(function() {
-          window.location.href = "jury-dashboard.html";
+      setTimeout(function () {
+        window.location.href = "jury-dashboard.html";
       }, 1500);
+      return;
     }
+
     const participants = snapshot.val();
     Object.values(participants).forEach(p => {
       const row = createParticipantRow(p, p.role);
@@ -117,11 +150,33 @@ function loadParticipants() {
       else leadersDiv.appendChild(row);
     });
   }).catch(err => {
-      console.log(err.message);
+    console.log(err.message);
   });
 }
 
 saveBtn.addEventListener("click", () => {
+  const followerRanks = {}, leaderRanks = {};
+  const followerIDs = [], leaderIDs = [];
+
+  Object.entries(selections).forEach(([id, rank]) => {
+    const isFollower = !!document.querySelector(`.follower-row .participant-label:contains('${id}')`);
+    const group = isFollower ? "follower" : "leader";
+
+    if (group === "follower") {
+      followerRanks[rank] = (followerRanks[rank] || 0) + 1;
+      followerIDs.push(id);
+    } else {
+      leaderRanks[rank] = (leaderRanks[rank] || 0) + 1;
+      leaderIDs.push(id);
+    }
+  });
+
+  const validFollowers = followerIDs.length === 6 && Object.values(followerRanks).every(v => v === 1);
+  const validLeaders = leaderIDs.length === 6 && Object.values(leaderRanks).every(v => v === 1);
+
+  if (!validFollowers) return showPopup("Please check your rankings for the Followers group.");
+  if (!validLeaders) return showPopup("Please check your rankings for the Leaders group.");
+
   const saveRef = ref(db, `roundResults/${roundName}/${currentUser}`);
   const dataToSave = Object.entries(selections).map(([id, rank]) => ({
     jury: currentUser,
@@ -131,13 +186,10 @@ saveBtn.addEventListener("click", () => {
 
   set(saveRef, dataToSave).then(() => {
     const progressRef = ref(db, `juryProgress/${currentUser}`);
-    get(progressRef).then(snap => {
-      const current = snap.exists() ? snap.val() : 0;
-      set(progressRef, "end").then(() => {
-        saveBtn.disabled = true;
-        showPopup("Competition is completed. Thank you.");
-        window.location.href = "jury-dashboard.html";
-      });
+    set(progressRef, "end").then(() => {
+      saveBtn.disabled = true;
+      showPopup("Competition is completed. Thank you.");
+      window.location.href = "jury-dashboard.html";
     });
   });
 });
