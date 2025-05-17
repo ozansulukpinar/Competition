@@ -50,6 +50,10 @@
   text-align: left;
 }
 
+.result-table td:last-child {
+  background-color: #FFFF00;
+}
+
 .result-table td {
   font-size: 1rem;
 }
