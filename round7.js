@@ -115,7 +115,7 @@ saveBtn.addEventListener("click", () => {
     const progressRef = ref(db, `juryProgress/${currentUser}`);
     get(progressRef).then(snap => {
       const current = snap.exists() ? snap.val() : 0;
-      update(progressRef, { '.value': current + 1 }).then(() => {
+      set(progressRef, "end").then(() => {
         saveBtn.disabled = true;
         showPopup("Competition is completed. Thank you.");
         window.location.href = "jury-dashboard.html";
