@@ -1,4 +1,4 @@
-// round7.js (Final değerlendirmesi - sıralama için 1-6 arası seçim yapılır)
+// round7.js
 import { db } from './firebase-init.js';
 import { ref, get, set } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
@@ -11,6 +11,7 @@ const popupClose = document.getElementById("popup-close");
 
 const roundName = "round7";
 let currentUser = window.sessionStorage.getItem("username");
+let selections = {};
 
 await authenticationControl();
 
@@ -24,16 +25,12 @@ async function authenticationControl() {
   }
 }
 
-let selections = {};
-
 function showPopup(msg) {
   popupMessage.textContent = msg;
   popup.classList.remove("hidden");
 }
 
-popupClose.addEventListener("click", () => {
-  popup.classList.add("hidden");
-});
+popupClose.addEventListener("click", () => popup.classList.add("hidden"));
 
 function createParticipantRow(participant, group) {
   const row = document.createElement("div");
@@ -48,19 +45,17 @@ function createParticipantRow(participant, group) {
 
   for (let i = 1; i <= 6; i++) {
     const btn = document.createElement("button");
-    btn.className = "switch-label";
+    btn.className = "switch-label inactive";
     btn.textContent = i;
     btn.dataset.rank = i;
 
     btn.addEventListener("click", () => {
-      // Aynı satırda önceki seçimi kaldır
+      // Bu satırdaki tüm butonları temizle
       buttons.querySelectorAll(".switch-label").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
-      // Seçimi kaydet
+      // Seçimi güncelle
       selections[participant.id] = i;
-
-      // Güncel stil işlemleri
       updateVisualFeedback(group);
       checkEnableSave();
     });
@@ -92,44 +87,24 @@ function updateVisualFeedback(group) {
     const buttons = row.querySelectorAll(".switch-label");
 
     buttons.forEach(btn => {
-      const btnRank = btn.textContent;
+      btn.classList.remove("active", "dimmed", "inactive");
 
-      if (btn.classList.contains("active")) {
-        btn.style.backgroundColor = "green";
-        btn.style.color = "white";
-      } else if (selectedRanks[btnRank] || selectedRows[id]) {
-        btn.style.backgroundColor = "#444";
-        btn.style.color = "white";
+      const rank = btn.textContent;
+      if (selections[id] && selections[id].toString() === rank) {
+        btn.classList.add("active");
+      } else if (selectedRanks[rank] || selectedRows[id]) {
+        btn.classList.add("dimmed");
       } else {
-        btn.style.backgroundColor = "red";
-        btn.style.color = "white";
+        btn.classList.add("inactive");
       }
     });
   });
 }
 
 function checkEnableSave() {
-  const followerRanks = {};
-  const leaderRanks = {};
-  let followerCount = 0;
-  let leaderCount = 0;
-
-  for (const [id, rank] of Object.entries(selections)) {
-    const el = document.querySelector(`[data-id='${id}']`) || {};
-    const group = id in followersDiv.innerHTML ? "follower" : "leader";
-    if (group === "follower") {
-      followerRanks[rank] = (followerRanks[rank] || 0) + 1;
-      followerCount++;
-    } else {
-      leaderRanks[rank] = (leaderRanks[rank] || 0) + 1;
-      leaderCount++;
-    }
-  }
-
-  const validFollowers = followerCount === 6 && Object.values(followerRanks).every(v => v === 1);
-  const validLeaders = leaderCount === 6 && Object.values(leaderRanks).every(v => v === 1);
-
-  saveBtn.disabled = !(validFollowers && validLeaders);
+  const allRanks = Object.values(selections);
+  const uniqueRanks = new Set(allRanks);
+  saveBtn.disabled = allRanks.length !== 12 || uniqueRanks.size < 6;
 }
 
 function loadParticipants() {
@@ -137,42 +112,32 @@ function loadParticipants() {
   get(listRef).then(snapshot => {
     if (!snapshot.exists()) {
       showPopup("Other juries did not complete their evaluation. Please try again later.");
-      setTimeout(function () {
-        window.location.href = "jury-dashboard.html";
-      }, 1500);
+      setTimeout(() => window.location.href = "jury-dashboard.html", 1500);
       return;
     }
-
     const participants = snapshot.val();
     Object.values(participants).forEach(p => {
       const row = createParticipantRow(p, p.role);
       if (p.role === "follower") followersDiv.appendChild(row);
       else leadersDiv.appendChild(row);
     });
-  }).catch(err => {
-    console.log(err.message);
-  });
+  }).catch(err => console.log(err.message));
 }
 
 saveBtn.addEventListener("click", () => {
-  const followerRanks = {}, leaderRanks = {};
-  const followerIDs = [], leaderIDs = [];
+  const groupRanks = { follower: {}, leader: {} };
+  const groupCounts = { follower: 0, leader: 0 };
 
   Object.entries(selections).forEach(([id, rank]) => {
-    const isFollower = !!document.querySelector(`.follower-row .participant-label:contains('${id}')`);
-    const group = isFollower ? "follower" : "leader";
+    const el = document.querySelector(`.participant-label:contains('${id}')`);
+    const group = followersDiv.innerHTML.includes(id) ? "follower" : "leader";
 
-    if (group === "follower") {
-      followerRanks[rank] = (followerRanks[rank] || 0) + 1;
-      followerIDs.push(id);
-    } else {
-      leaderRanks[rank] = (leaderRanks[rank] || 0) + 1;
-      leaderIDs.push(id);
-    }
+    groupRanks[group][rank] = (groupRanks[group][rank] || 0) + 1;
+    groupCounts[group]++;
   });
 
-  const validFollowers = followerIDs.length === 6 && Object.values(followerRanks).every(v => v === 1);
-  const validLeaders = leaderIDs.length === 6 && Object.values(leaderRanks).every(v => v === 1);
+  const validFollowers = groupCounts.follower === 6 && Object.values(groupRanks.follower).every(v => v === 1);
+  const validLeaders = groupCounts.leader === 6 && Object.values(groupRanks.leader).every(v => v === 1);
 
   if (!validFollowers) return showPopup("Please check your rankings for the Followers group.");
   if (!validLeaders) return showPopup("Please check your rankings for the Leaders group.");
