@@ -99,7 +99,7 @@ function buildRow(data, votes, passCount, jurors) {
   });
 
   const tdResult = document.createElement("td");
-  tdResult.textContent = passCount > jurors.length * 2 ? "✅" : "❌";
+  tdResult.textContent = passCount > jurors.length / 2 ? "✅" : "❌";
   tr.appendChild(tdResult);
 
   return tr;
