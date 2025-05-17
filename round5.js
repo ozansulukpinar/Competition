@@ -94,6 +94,14 @@ function loadParticipants() {
   });
 }
 
+function getNextRoundName(currentName) {
+  const match = currentName.match(/^(.*?)(\d+)$/);
+  if (!match) return currentName;
+  const prefix = match[1];
+  const number = parseInt(match[2]);
+  return prefix + (number + 1);
+}
+
 saveBtn.addEventListener("click", () => {
   const saveRef = ref(db, `roundResults/${roundName}/${currentUser}`);
   const dataToSave = Object.entries(evaluations).map(([id, pass]) => ({
@@ -106,7 +114,8 @@ saveBtn.addEventListener("click", () => {
     const progressRef = ref(db, `juryProgress/${currentUser}`);
     get(progressRef).then(snap => {
       const current = snap.exists() ? snap.val() : 0;
-      update(progressRef, { '.value': current + 1 }).then(() => {
+      const nextRoundName = getNextRoundName(roundName);
+      set(progressRef, nextRoundName).then(() => {
         saveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
       });
