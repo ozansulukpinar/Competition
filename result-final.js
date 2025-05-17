@@ -54,7 +54,7 @@ async function loadData() {
 
   Object.entries(allVotes).forEach(([pid, { total, count, votes, data }]) => {
     if (!data) return;
-    const avg = round(total / count);
+    const avg = Math.round(total / count);
     const row = buildRow(data, votes, avg, juryUsernames);
     const obj = { row, avg };
     if (data.role === "follower") followerRows.push(obj);
