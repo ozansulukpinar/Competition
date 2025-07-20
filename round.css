@@ -110,6 +110,7 @@
   border: none;
   border-radius: 10px;
   cursor: pointer;
+  margin: 2rem auto 0 auto;
 }
 
 .save-btn:disabled {

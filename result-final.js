@@ -78,7 +78,7 @@ function renderHeader(table, jurors) {
 
 function buildRow(data, votes, average, jurors) {
   const tr = document.createElement("tr");
-  const fullName = `${data.id} - ${data.name} ${data.surname}`;
+  const fullName = `${data.id}`;
 
   const tdName = document.createElement("td");
   tdName.textContent = fullName;

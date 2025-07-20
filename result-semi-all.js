@@ -84,7 +84,7 @@ function renderHeader(table, jurors) {
 
 function buildRow(data, votes, passCount, jurors) {
   const tr = document.createElement("tr");
-  const fullName = `${data.id} - ${data.name} ${data.surname}`;
+  const fullName = `${data.id}`;
 
   const tdName = document.createElement("td");
   tdName.textContent = fullName;
@@ -105,7 +105,7 @@ function buildRow(data, votes, passCount, jurors) {
 }
 
 const backBtn = document.getElementById("back-eval");
-  
+
 function goBack() {
   window.location.href = "admin-dashboard.html";
 }

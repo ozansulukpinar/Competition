@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Semi-Final Evaluation</title>
+    <link rel="stylesheet" href="round.css" />
+</head>
+
+<body>
+    <div class="round-screen">
+        <div class="round-title">Semi-Final Round #1</div>
+        <div class="participants">
+            <div class="participant-list follower-group">
+                <h2>Followers</h2>
+                <div id="followers-round5"></div>
+            </div>
+            <div class="participant-list leader-group">
+                <h2>Leaders</h2>
+                <div id="leaders-round5"></div>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="round-title">Semi-Final Round #2</div>
+        <div class="participants">
+            <div class="participant-list follower-group">
+                <h2>Followers</h2>
+                <div id="followers-round6"></div>
+            </div>
+            <div class="participant-list leader-group">
+                <h2>Leaders</h2>
+                <div id="leaders-round6"></div>
+            </div>
+        </div>
+
+        <button class="save-btn" id="save-all-eval">Save</button>
+    </div>
+
+    <div id="popup" class="popup hidden">
+        <div class="popup-content">
+            <span id="popup-close" class="popup-close">&times;</span>
+            <p id="popup-message"></p>
+        </div>
+    </div>
+
+    <script type="module" src="rounds-semi.js"></script>
+</body>
+
+</html>

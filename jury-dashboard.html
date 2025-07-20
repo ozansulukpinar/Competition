@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,17 +8,14 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="jury.css">
 </head>
+
 <body>
   <main class="dashboard jury-dashboard">
     <h1 class="panel-title">Jury Evaluation Panel</h1>
 
     <div class="button-grid">
-      <button class="round-btn" id="round-1">Quarter-Final Round #1</button>
-      <button class="round-btn" id="round-2" disabled>Quarter-Final Round #2</button>
-      <button class="round-btn" id="round-3" disabled>Quarter-Final Round #3</button>
-      <button class="round-btn" id="round-4" disabled>Quarter-Final Round #4</button>
-      <button class="round-btn" id="semi-1" disabled>Semi-Final Round #1</button>
-      <button class="round-btn" id="semi-2" disabled>Semi-Final Round #2</button>
+      <button class="round-btn" id="quarter">Quarter-Final Round</button>
+      <button class="round-btn" id="semi" disabled>Semi-Final Round</button>
       <button class="round-btn" id="final" disabled>Final Round</button>
       <button class="round-btn" id="reround" disabled>Re-Round</button>
     </div>
@@ -30,4 +28,5 @@
 
   <script type="module" src="jury-dashboard.js"></script>
 </body>
+
 </html>

@@ -1,6 +1,6 @@
 // login.js
 import { db } from './firebase-init.js';
-import { ref, get, set } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+import { ref, get, set } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const usernameInput = document.getElementById("username");
 const passwordInput = document.getElementById("password");
@@ -11,7 +11,7 @@ const popupClose = document.getElementById("popup-close");
 
 // Şifreler base64 ile "gizli"
 const encryptedPasswords = {
-  jury: btoa("251705"),      // base64 encoded
+  jury: btoa("250708"),      // base64 encoded
   admin: btoa("231810")
 };
 
@@ -93,7 +93,7 @@ async function initializeCompetitionRounds() {
   }
 
   await set(startRef, true);
-  console.log("Competition initialized and competitionStart set to true.");
+  console.log("Competition initialized and competition. Start set to true.");
 }
 
 loginBtn.addEventListener("click", async () => {
@@ -103,18 +103,18 @@ loginBtn.addEventListener("click", async () => {
 
   const usersRef = ref(db, 'users');
   const snapshot = await get(usersRef);
-  if (!snapshot.exists()) return showPopup("Kullanıcı verisi okunamadı.");
+  if (!snapshot.exists()) return showPopup("User data cannot read.");
 
   const users = snapshot.val();
   const user = Object.values(users).find(u => u.username === username);
 
-  if (!user) return showPopup("Hata: Geçerli olmayan kullanıcı adı ile giriş yapmaya çalışıyorsunuz.");
+  if (!user) return showPopup("Error: You are trying to log in with an invalid username.");
 
   const correctRolePassword = encryptedPasswords[user.role];
   const isCorrectPassword = (passwordEncoded === correctRolePassword);
 
   if (!isCorrectPassword) {
-    return showPopup("Hata: Diğer kullanıcı tipine ait şifreyi giriyorsunuz.");
+    return showPopup("Error: You are entering an incorrect password.");
   }
 
   window.sessionStorage.setItem("username", username);

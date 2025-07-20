@@ -1,6 +1,6 @@
 // jury-dashboard.js
 import { db } from './firebase-init.js';
-import { ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 const roundButtons = document.querySelectorAll(".round-btn");
 const popup = document.getElementById("popup");
@@ -23,42 +23,41 @@ async function authenticationControl() {
 }
 
 // Hangi turda olduğu Firebase üzerinden kontrol edilir
-  const progressSnap = await get(ref(db, `juryProgress/${currentUser}`));
-  const currentKey = progressSnap.exists() ? progressSnap.val() : null;
+const progressSnap = await get(ref(db, `juryProgress/${currentUser}`));
+const currentKey = progressSnap.exists() ? progressSnap.val() : null;
 
-  const roundOrder = [
-    "round1", "round2", "round3", "round4",
-    "round5", "round6", "round7", "reround"
-  ];
+const roundOrder = [
+  "quarter", "semi", "final", "reround"
+];
 
-  let currentIndex = 0;
-  if (currentKey) {
-    const index = roundOrder.indexOf(currentKey);
-    if (index !== -1) {
-      currentIndex = index;
-    } else{
-      showPopup("Competition is completed."); // currentKey == end
-      currentIndex = -1;
-    }
+let currentIndex = 0;
+if (currentKey) {
+  const index = roundOrder.indexOf(currentKey);
+  if (index !== -1) {
+    currentIndex = index;
+  } else {
+    showPopup("Competition is completed."); // currentKey == end
+    currentIndex = -1;
   }
+}
 
-  roundButtons.forEach((btn, idx) => {
-    if (idx === currentIndex) {
-      btn.disabled = false;
-      btn.classList.add("active-round");
-    } else {
-      btn.disabled = true;
-      btn.classList.add("disabled-round");
-    }
-  });
+roundButtons.forEach((btn, idx) => {
+  if (idx === currentIndex) {
+    btn.disabled = false;
+    btn.classList.add("active-round");
+  } else {
+    btn.disabled = true;
+    btn.classList.add("disabled-round");
+  }
+});
 
 roundButtons.forEach((btn, index) => {
   btn.addEventListener("click", () => {
     // Her turun ayrı sayfasına yönlendir
-    if(index == 7) 
+    if (index == 3)
       window.location.href = `reround.html`;
     else
-      window.location.href = `round${index + 1}.html`;
+      window.location.href = roundOrder[index] + `.html`;
   });
 });
 

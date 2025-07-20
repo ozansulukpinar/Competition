@@ -34,7 +34,7 @@ body {
   gap: 1rem;
 }
 
-.admin-buttons-row:nth-child(1) {
+/* .admin-buttons-row:nth-child(1) {
   grid-template-columns: repeat(5, 1fr);
 }
 
@@ -45,7 +45,7 @@ body {
 .admin-buttons-row:nth-child(3) {
   grid-template-columns: repeat(1, 1fr);
   justify-content: center;
-}
+} */
 
 .admin-buttons button {
   background-color: #008080;
@@ -70,7 +70,7 @@ body {
   display: none;
 }
 
-@media (max-width: 900px) {
+/* @media (max-width: 900px) {
   .admin-buttons-row:nth-child(1) {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -80,7 +80,7 @@ body {
   .admin-buttons-row:nth-child(3) {
     grid-template-columns: 1fr;
   }
-}
+} */
 
 @media (max-width: 500px) {
   .admin-dashboard {
