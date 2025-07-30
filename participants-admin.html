@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participants Admin</title>
+    <link rel="stylesheet" href="participants.css">
+    <script type="module" src="participants.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Participants</h1>
+            <button id="add-btn" class="add-btn"><i class="fas fa-plus"></i> Add</button>
+        </div>
+        <table id="participants-table">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>name</th>
+                    <th>surname</th>
+                    <th>role</th>
+                    <th>action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Delete Confirmation Popup -->
+    <div class="popup hidden" id="delete-popup">
+        <p>Are you sure to delete this record?</p>
+        <div class="popup-actions">
+            <button id="confirm-delete">OK</button>
+            <button id="cancel-delete">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Success Message Popup -->
+    <div class="popup hidden" id="message-popup">
+        <p id="message-text"></p>
+        <button id="message-ok">OK</button>
+    </div>
+
+    <!-- Add/Edit Form Popup -->
+    <div class="popup hidden" id="form-popup">
+        <span class="close-btn" id="close-form">&times;</span>
+        <input type="number" id="input-id" placeholder="ID" required>
+        <input type="text" id="input-name" placeholder="Name" required>
+        <input type="text" id="input-surname" placeholder="Surname" required>
+        <select id="input-role">
+            <option value="">Select role</option>
+            <option value="follower">follower</option>
+            <option value="leader">leader</option>
+        </select>
+        <p class="form-warning" id="form-warning"></p>
+        <button id="save-form">Save</button>
+    </div>
+</body>
+
+</html>

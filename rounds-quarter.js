@@ -90,10 +90,10 @@ function validateAndSave() {
     if (followerDiff !== 0 || leaderDiff !== 0) {
         let msg = "";
         if (followerDiff !== 0) {
-            msg += `${Math.abs(followerDiff)} ${followerDiff > 0 ? "extra" : "missing"} followers selected. Please ${followerDiff > 0 ? "reduce to" : "increase to"} 14.\n`;
+            msg += `${Math.abs(followerDiff)} ${followerDiff > 0 ? "extra followers selected" : "missing followers is there"} . Please ${followerDiff > 0 ? "reduce to" : "increase to"} 14. \n`;
         }
         if (leaderDiff !== 0) {
-            msg += `${Math.abs(leaderDiff)} ${leaderDiff > 0 ? "extra" : "missing"} leaders selected. Please ${leaderDiff > 0 ? "reduce to" : "increase to"} 14.`;
+            msg += `${Math.abs(leaderDiff)} ${leaderDiff > 0 ? "extra leaders selected" : "missing leaders is there"} . Please ${leaderDiff > 0 ? "reduce to" : "increase to"} 14.`;
         }
         showPopup(msg);
         return;
