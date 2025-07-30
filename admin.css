@@ -34,19 +34,6 @@ body {
   gap: 1rem;
 }
 
-/* .admin-buttons-row:nth-child(1) {
-  grid-template-columns: repeat(5, 1fr);
-}
-
-.admin-buttons-row:nth-child(2) {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.admin-buttons-row:nth-child(3) {
-  grid-template-columns: repeat(1, 1fr);
-  justify-content: center;
-} */
-
 .admin-buttons button {
   background-color: #008080;
   color: white;

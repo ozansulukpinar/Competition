@@ -60,6 +60,9 @@ async function loadData() {
   const followerRows = [];
   const leaderRows = [];
 
+  renderHeader(followersTable, juryUsernames);
+  renderHeader(leadersTable, juryUsernames);
+
   Object.entries(allResults).forEach(([pid, { passCount, votes, data }]) => {
     if (!data) return;
     const row = buildRow(data, votes, passCount, juryUsernames);
@@ -70,14 +73,11 @@ async function loadData() {
 
   followerRows.sort((a, b) => b.passCount - a.passCount).forEach(({ row }) => followersTable.appendChild(row));
   leaderRows.sort((a, b) => b.passCount - a.passCount).forEach(({ row }) => leadersTable.appendChild(row));
-
-  renderHeader(followersTable, juryUsernames);
-  renderHeader(leadersTable, juryUsernames);
 }
 
 function renderHeader(table, jurors) {
   const tr = document.createElement("tr");
-  tr.innerHTML = `<th>Competitor No and Name Surname</th>
+  tr.innerHTML = `<th>Competitor No</th>
     ${jurors.map(j => `<th>${j}</th>`).join("")}
     <th>Result</th>`;
   table.appendChild(tr);

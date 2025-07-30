@@ -52,6 +52,9 @@ async function loadData() {
   const followerRows = [];
   const leaderRows = [];
 
+  renderHeader(followersTable, juryUsernames);
+  renderHeader(leadersTable, juryUsernames);
+
   Object.entries(allVotes).forEach(([pid, { total, count, votes, data }]) => {
     if (!data) return;
     const avg = total / count;
@@ -63,14 +66,11 @@ async function loadData() {
 
   followerRows.sort((a, b) => a.avg - b.avg).forEach(({ row }) => followersTable.appendChild(row));
   leaderRows.sort((a, b) => a.avg - b.avg).forEach(({ row }) => leadersTable.appendChild(row));
-
-  renderHeader(followersTable, juryUsernames);
-  renderHeader(leadersTable, juryUsernames);
 }
 
 function renderHeader(table, jurors) {
   const tr = document.createElement("tr");
-  tr.innerHTML = `<th>Competitor No and Name Surname</th>
+  tr.innerHTML = `<th>Competitor No</th>
     ${jurors.map(j => `<th>${j}</th>`).join("")}
     <th>Result</th>`;
   table.appendChild(tr);

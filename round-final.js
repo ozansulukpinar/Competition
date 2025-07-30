@@ -1,4 +1,4 @@
-// round7.js
+// round-final.js
 import { db } from './firebase-init.js';
 import { ref, get, set } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
@@ -7,7 +7,7 @@ const leadersDiv = document.getElementById("leaders");
 const saveBtn = document.getElementById("save-eval");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popup-message");
-const popupClose = document.getElementById("popup-close");
+const popupOk = document.getElementById("popup-ok");
 
 const roundName = "round7";
 let currentUser = window.sessionStorage.getItem("username");
@@ -28,9 +28,13 @@ async function authenticationControl() {
 function showPopup(msg) {
   popupMessage.textContent = msg;
   popup.classList.remove("hidden");
+  document.querySelector(".round-screen").classList.add("blur-background");
 }
 
-popupClose.addEventListener("click", () => popup.classList.add("hidden"));
+popupOk.addEventListener("click", () => {
+  popup.classList.add("hidden");
+  document.querySelector(".round-screen").classList.remove("blur-background");
+});
 
 function createParticipantRow(participant, group) {
   const row = document.createElement("div");

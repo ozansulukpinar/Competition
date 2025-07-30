@@ -6,14 +6,18 @@ const rounds = ["round5", "round6"];
 const currentUser = sessionStorage.getItem("username");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popup-message");
-const popupClose = document.getElementById("popup-close");
+const popupOk = document.getElementById("popup-ok");
 const globalSaveBtn = document.getElementById("save-all-eval");
 
-popupClose.addEventListener("click", () => popup.classList.add("hidden"));
+popupOk.addEventListener("click", () => {
+    popup.classList.add("hidden");
+    document.querySelector(".round-screen").classList.remove("blur-background");
+});
 
 function showPopup(message) {
     popupMessage.textContent = message;
     popup.classList.remove("hidden");
+    document.querySelector(".round-screen").classList.add("blur-background");
 }
 
 let allEvaluations = [];

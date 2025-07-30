@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,21 +8,25 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="results.css">
 </head>
+
 <body>
   <main class="result-screen">
     <h1 class="result-title">Semi-Final Results</h1>
-    <section>
-      <h2>Followers</h2>
-      <table id="followers-table" class="result-table"></table>
-    </section>
-    <section>
-      <h2>Leaders</h2>
-      <table id="leaders-table" class="result-table"></table>
-    </section>
+    <div class="results-container">
+      <div class="results-table followers">
+        <h2>Followers</h2>
+        <table id="followers-table" class="result-table"></table>
+      </div>
+      <div class="results-table leaders">
+        <h2>Leaders</h2>
+        <table id="leaders-table" class="result-table"></table>
+      </div>
+    </div>
     <div class="button-group">
       <button id="back-eval" class="back-btn">Back</button>
     </div>
   </main>
   <script type="module" src="result-semi-all.js"></script>
 </body>
+
 </html>
