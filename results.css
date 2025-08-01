@@ -59,12 +59,22 @@
   font-weight: bold;
 }
 
-.result-table td:last-child {
+/* .result-table td:last-child {
   background-color: #FFFF00;
-}
+} */
 
 .result-table td {
   font-size: 1rem;
+}
+
+.result-table td.check {
+  background-color: #6db36d;
+  /* orman yeşiline yakın */
+}
+
+.result-table td.cross {
+  background-color: #e57373;
+  /* daha güçlü kırmızı */
 }
 
 .back-btn {

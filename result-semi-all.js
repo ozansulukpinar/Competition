@@ -78,7 +78,7 @@ function renderHeader(table, jurors) {
   const tr = document.createElement("tr");
   tr.innerHTML = `<th>Competitor No</th>
     ${jurors.map(j => `<th>${j}</th>`).join("")}
-    <th>Result</th>`;
+    `;
   table.appendChild(tr);
 }
 
@@ -87,19 +87,23 @@ function buildRow(data, votes, passCount, jurors) {
   const fullName = `${data.id}`;
 
   const tdName = document.createElement("td");
-  tdName.textContent = fullName;
+  tdName.innerHTML = '<b>' + fullName + '</b>';
   tr.appendChild(tdName);
 
   jurors.forEach(j => {
     const td = document.createElement("td");
     const val = votes[j];
-    td.innerHTML = val > 0 ? "✅" : val === 0 ? "❌" : "-";
+    if (val > 0) {
+      td.innerHTML = "✔️";
+      td.classList.add("check");
+    } else if (val === 0) {
+      td.innerHTML = "❌";
+      td.classList.add("cross");
+    } else {
+      td.innerHTML = "-";
+    }
     tr.appendChild(td);
   });
-
-  const tdResult = document.createElement("td");
-  tdResult.textContent = passCount > jurors.length / 2 ? "✅" : "❌";
-  tr.appendChild(tdResult);
 
   return tr;
 }

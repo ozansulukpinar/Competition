@@ -1,24 +1,30 @@
+// participants.js
 import { db } from './firebase-init.js';
-import { ref, get, set, remove, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+import { ref, get, set, remove } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
-const tableBody = document.querySelector("#participants-table tbody");
-const addBtn = document.getElementById("add-btn");
+const tableBody = document.getElementById("participants-body");
 const formPopup = document.getElementById("form-popup");
+const deletePopup = document.getElementById("delete-popup");
 const messagePopup = document.getElementById("message-popup");
+const warning = document.getElementById("form-warning");
 const messageText = document.getElementById("message-text");
 const messageOk = document.getElementById("message-ok");
-const deletePopup = document.getElementById("delete-popup");
-const confirmDelete = document.getElementById("confirm-delete");
-const cancelDelete = document.getElementById("cancel-delete");
-const closeForm = document.getElementById("close-form");
+const deleteConfirm = document.getElementById("confirm-delete");
+const deleteCancel = document.getElementById("cancel-delete");
+const addBtn = document.getElementById("add-btn");
+const startBtn = document.getElementById("start-btn");
+const closeBtn = document.getElementById("close-form");
 const saveForm = document.getElementById("save-form");
-const warning = document.getElementById("form-warning");
+const participantsSummary = document.getElementById("participants-summary");
+const backBtn = document.getElementById("back-eval");
+let followerCount = 0;
+let leaderCount = 0;
 
-let editMode = false;
-let editKey = null;
-let deleteKey = null;
+let editingId = null;
 
 function showMessage(msg) {
+    formPopup.classList.add("hidden"); // close form popup if open
+    deletePopup.classList.add("hidden"); // close delete popup if open
     messageText.textContent = msg;
     messagePopup.classList.remove("hidden");
 }
@@ -28,27 +34,166 @@ messageOk.addEventListener("click", () => {
     loadData();
 });
 
+function createRow(data) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+    <td>${data.id}</td>
+    <td>${data.name}</td>
+    <td>${data.surname}</td>
+    <td>${data.role}</td>
+    <td>
+      <button class="edit-btn" data-id="${data.id}"><i class="fas fa-pencil"></i> Edit</button>
+      <button class="delete-btn" data-id="${data.id}"><i class="fas fa-trash"></i> Delete</button>
+    </td>`;
+    return tr;
+}
+
+function loadData() {
+    followerCount = 0;
+    leaderCount = 0;
+
+    const listRef = ref(db, "participants");
+    get(listRef).then(snapshot => {
+        tableBody.innerHTML = "";
+        const data = snapshot.val();
+        if (!data) return;
+        const sorted = Object.values(data).sort((a, b) => a.id - b.id);
+        sorted.forEach(d => {
+            const row = createRow(d);
+            tableBody.appendChild(row);
+            if (d.role === "follower") followerCount++;
+            if (d.role === "leader") leaderCount++;
+        });
+
+        participantsSummary.textContent = `${followerCount} follower(s), ${leaderCount} leader(s)`;
+    });
+
+}
+
 addBtn.addEventListener("click", () => {
-    editMode = false;
-    editKey = null;
-    warning.textContent = "";
+    editingId = null;
     formPopup.classList.remove("hidden");
+    warning.textContent = "";
     document.getElementById("input-id").value = "";
     document.getElementById("input-name").value = "";
     document.getElementById("input-surname").value = "";
-    document.getElementById("input-role").value = "";
+    document.getElementById("input-role").value = "follower";
 });
 
-closeForm.addEventListener("click", () => formPopup.classList.add("hidden"));
-cancelDelete.addEventListener("click", () => deletePopup.classList.add("hidden"));
+startBtn.addEventListener("click", async () => {
+    if (followerCount !== leaderCount) {
+        showMessage("To start the competition, the number of followers and leaders should be equal.");
+        return;
+    }
+
+    await initializeCompetitionRounds();
+});
+
+// Yöneticinin butona tıklaması sonrası yarışmacılar istenilen sayıda ön eleme turuna rastgele şekilde dağıtılır
+async function initializeCompetitionRounds() {
+    const startRef = ref(db, 'competitionStart');
+    const startSnap = await get(startRef);
+
+    if (startSnap.exists() && startSnap.val() === true) {
+        showMessage("Competition already started. Skipping initialization.");
+        return;
+    }
+
+    const participantsSnap = await get(ref(db, 'participants'));
+    if (!participantsSnap.exists()) {
+        showMessage("No participants found.");
+        return;
+    }
+
+    const participants = Object.values(participantsSnap.val());
+    const followers = participants.filter(p => p.role === 'follower');
+    const leaders = participants.filter(p => p.role === 'leader');
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    const shuffledFollowers = shuffle([...followers]);
+    const shuffledLeaders = shuffle([...leaders]);
+
+    const roundAssignments = {
+        round1: {
+            followers: shuffledFollowers.splice(0, 5),
+            leaders: shuffledLeaders.splice(0, 5)
+        },
+        round2: {
+            followers: shuffledFollowers.splice(0, 5),
+            leaders: shuffledLeaders.splice(0, 5)
+        },
+        round3: {
+            followers: shuffledFollowers.splice(0, 5),
+            leaders: shuffledLeaders.splice(0, 5)
+        },
+        round4: {
+            followers: shuffledFollowers,
+            leaders: shuffledLeaders
+        }
+    };
+
+    for (const [round, data] of Object.entries(roundAssignments)) {
+        const combined = [...data.followers, ...data.leaders];
+        const roundRef = ref(db, `roundParticipants/${round}`);
+        await set(roundRef, combined.reduce((acc, item, i) => {
+            acc[i] = item;
+            return acc;
+        }, {}));
+    }
+
+    await set(startRef, true);
+    showMessage("Participants distributed and competition started.");
+}
+
+closeBtn.addEventListener("click", () => {
+    formPopup.classList.add("hidden");
+});
+
+tableBody.addEventListener("click", e => {
+    if (e.target.closest(".edit-btn")) {
+        const id = e.target.closest(".edit-btn").dataset.id;
+        const dataRef = ref(db, `participants/${id}`);
+        get(dataRef).then(snap => {
+            if (!snap.exists()) return;
+            const data = snap.val();
+            editingId = id;
+            formPopup.classList.remove("hidden");
+            warning.textContent = "";
+            document.getElementById("input-id").value = data.id;
+            document.getElementById("input-name").value = data.name;
+            document.getElementById("input-surname").value = data.surname;
+            document.getElementById("input-role").value = data.role;
+        });
+    }
+
+    if (e.target.closest(".delete-btn")) {
+        const id = e.target.closest(".delete-btn").dataset.id;
+        deletePopup.classList.remove("hidden");
+        deleteConfirm.onclick = () => {
+            const deleteRef = ref(db, `participants/${id}`);
+            remove(deleteRef).then(() => {
+                deletePopup.classList.add("hidden");
+                showMessage("Record deleted successfully!");
+            });
+        };
+        deleteCancel.onclick = () => {
+            deletePopup.classList.add("hidden");
+        };
+    }
+});
 
 saveForm.addEventListener("click", async () => {
     const id = document.getElementById("input-id").value.trim();
     const name = document.getElementById("input-name").value.trim();
     const surname = document.getElementById("input-surname").value.trim();
     const role = document.getElementById("input-role").value;
-
-    console.log("INPUT VALUES:", { id, name, surname, role });
 
     if (!id || !name || !surname || !role) {
         warning.textContent = "You need to fill all inputs";
@@ -62,89 +207,30 @@ saveForm.addEventListener("click", async () => {
     }
 
     const idKey = idNumber.toString();
-    const dataRef = ref(db, `participants/${idKey}`);
-
     const newData = { id: idNumber, name, surname, role };
 
-    console.log("Type of each field:", {
-        id: typeof idNumber,
-        name: typeof name,
-        surname: typeof surname,
-        role: typeof role
-    });
-
-    console.log("newData before set:", JSON.stringify(newData));
-
-    console.log("Saving object:", newData);
-
-    if (!editMode) {
-        const snap = await get(dataRef);
+    if (!editingId) {
+        const snap = await get(ref(db, `participants`));
         if (snap.exists()) {
-            warning.textContent = "There is already a record. Change the id";
-            return;
+            const all = snap.val();
+            if (all.hasOwnProperty(idKey)) {
+                warning.textContent = "There is already a record. Change the id";
+                return;
+            }
+        }
+    } else {
+        if (editingId !== idKey) {
+            await remove(ref(db, `participants/${editingId}`));
         }
     }
 
-    await set(dataRef, newData);
-    formPopup.classList.add("hidden");
+    await set(ref(db, `participants/${idKey}`), newData);
     showMessage("Record saved successfully");
 });
 
-confirmDelete.addEventListener("click", async () => {
-    if (deleteKey !== null) {
-        await remove(ref(db, `participants/${deleteKey}`));
-        deletePopup.classList.add("hidden");
-        showMessage("Record deleted successfully!");
-    }
-});
-
-function createRow(participant) {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-    <td>${participant.id}</td>
-    <td>${participant.name}</td>
-    <td>${participant.surname}</td>
-    <td>${participant.role}</td>
-    <td>
-      <button class="action-btn edit-btn"><i class="fas fa-pen"></i> Edit</button>
-      <button class="action-btn delete-btn"><i class="fas fa-trash"></i> Delete</button>
-    </td>
-  `;
-
-    const editButton = row.querySelector(".edit-btn");
-    const deleteButton = row.querySelector(".delete-btn");
-
-    editButton.addEventListener("click", () => {
-        editMode = true;
-        editKey = participant.id;
-        warning.textContent = "";
-        document.getElementById("input-id").value = participant.id;
-        document.getElementById("input-name").value = participant.name;
-        document.getElementById("input-surname").value = participant.surname;
-        document.getElementById("input-role").value = participant.role;
-        formPopup.classList.remove("hidden");
-    });
-
-    deleteButton.addEventListener("click", () => {
-        deleteKey = participant.id;
-        deletePopup.classList.remove("hidden");
-    });
-
-    return row;
+function goBack() {
+    window.location.href = "admin-dashboard.html";
 }
-
-function loadData() {
-    const listRef = ref(db, "participants");
-    onValue(listRef, snapshot => {
-        tableBody.innerHTML = "";
-        const data = snapshot.val();
-        if (data) {
-            const sorted = Object.values(data).sort((a, b) => a.id - b.id);
-            sorted.forEach(p => {
-                tableBody.appendChild(createRow(p));
-            });
-        }
-    });
-}
+backBtn.addEventListener('click', goBack);
 
 loadData();

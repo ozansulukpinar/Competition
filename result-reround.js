@@ -77,29 +77,29 @@ function buildRow(data, votes, passCount, juries) {
   const fullName = `${data.id} - ${data.name} ${data.surname}`;
 
   const tdName = document.createElement("td");
-  tdName.textContent = fullName;
+  tdName.innerHTML = '<b>' + fullName + '</b>';
   tr.appendChild(tdName);
 
   juries.forEach(j => {
     const td = document.createElement("td");
     const vote = votes[j.username];
     td.innerHTML = vote === true
-      ? "✅"
+      ? "✔️"
       : vote === false
-      ? "❌"
-      : "-";
+        ? "❌"
+        : "-";
     tr.appendChild(td);
   });
 
   const tdResult = document.createElement("td");
-  tdResult.textContent = passCount > juries.length / 2 ? "✅" : "❌";
+  tdResult.textContent = passCount > juries.length / 2 ? "✔️" : "❌";
   tr.appendChild(tdResult);
 
   return tr;
 }
 
 const backBtn = document.getElementById("back-eval");
-  
+
 function goBack() {
   window.location.href = "admin-dashboard.html";
 }

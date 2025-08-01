@@ -30,6 +30,16 @@ body {
     font-weight: bold;
 }
 
+.start-btn {
+    background-color: blue;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
 #participants-table {
     width: 100%;
     border-collapse: collapse;
@@ -59,6 +69,15 @@ body {
 
 .delete-btn {
     background-color: red;
+}
+
+.edit-btn,
+.delete-btn {
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
 }
 
 .popup {
@@ -134,4 +153,28 @@ select {
     font-size: 0.9rem;
     margin-top: 0.5rem;
     text-align: center;
+}
+
+.participants-summary {
+    margin-bottom: 1rem;
+    font-weight: bold;
+    color: #444;
+}
+
+.back-btn {
+    margin-top: 2rem;
+    display: block;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    background-color: #008080;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.button-group {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
 }

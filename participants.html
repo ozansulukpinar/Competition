@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Participants Admin</title>
+    <title>Participants</title>
     <link rel="stylesheet" href="participants.css">
     <script type="module" src="participants.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -14,7 +14,11 @@
     <div class="container">
         <div class="header">
             <h1>Participants</h1>
+            <button id="start-btn" class="start-btn"><i class="fas fa-trophy"></i> Start Competition</button>
             <button id="add-btn" class="add-btn"><i class="fas fa-plus"></i> Add</button>
+        </div>
+        <div>
+            <div id="participants-summary"></div>
         </div>
         <table id="participants-table">
             <thead>
@@ -23,11 +27,15 @@
                     <th>name</th>
                     <th>surname</th>
                     <th>role</th>
-                    <th>action</th>
+                    <th></th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody id="participants-body"></tbody>
         </table>
+
+        <div class="button-group">
+            <button id="back-eval" class="back-btn">Back</button>
+        </div>
     </div>
 
     <!-- Delete Confirmation Popup -->

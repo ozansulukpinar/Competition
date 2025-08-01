@@ -81,7 +81,7 @@ function buildRow(data, votes, average, jurors) {
   const fullName = `${data.id}`;
 
   const tdName = document.createElement("td");
-  tdName.textContent = fullName;
+  tdName.innerHTML = '<b>' + fullName + '</b>';
   tr.appendChild(tdName);
 
   jurors.forEach(j => {
