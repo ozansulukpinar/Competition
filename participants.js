@@ -121,19 +121,23 @@ async function initializeCompetitionRounds() {
     const shuffledLeaders = shuffle([...leaders]);
 
     const roundAssignments = {
-        round1: {
-            followers: shuffledFollowers.splice(0, 5),
-            leaders: shuffledLeaders.splice(0, 5)
+        round15: {
+            followers: shuffledFollowers.splice(0, 10),
+            leaders: shuffledLeaders.splice(0, 10)
         },
-        round2: {
-            followers: shuffledFollowers.splice(0, 5),
-            leaders: shuffledLeaders.splice(0, 5)
+        round16: {
+            followers: shuffledFollowers.splice(0, 10),
+            leaders: shuffledLeaders.splice(0, 10)
         },
-        round3: {
-            followers: shuffledFollowers.splice(0, 5),
-            leaders: shuffledLeaders.splice(0, 5)
+        round17: {
+            followers: shuffledFollowers.splice(0, 10),
+            leaders: shuffledLeaders.splice(0, 10)
         },
-        round4: {
+        round18: {
+            followers: shuffledFollowers.splice(0, 10),
+            leaders: shuffledLeaders.splice(0, 10)
+        },
+        round19: {
             followers: shuffledFollowers,
             leaders: shuffledLeaders
         }

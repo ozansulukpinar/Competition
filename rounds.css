@@ -46,10 +46,60 @@ h1 {
     grid-column: 3;
 }
 
-.round7-wrapper {
+#round8 {
+    grid-column: 1;
+}
+
+#round9 {
+    grid-column: 2;
+}
+
+#round10 {
+    grid-column: 3;
+}
+
+#round11 {
+    grid-column: 1;
+}
+
+#round12 {
+    grid-column: 2;
+}
+
+#round13 {
+    grid-column: 3;
+}
+
+#round14 {
+    grid-column: 4;
+}
+
+#round15 {
+    grid-column: 1;
+}
+
+#round16 {
+    grid-column: 2;
+}
+
+#round17 {
+    grid-column: 3;
+}
+
+#round18 {
+    grid-column: 4;
+}
+
+#round19 {
+    grid-column: 5;
+}
+
+.round-wrapper {
     display: flex;
+    flex-wrap: nowrap;
     justify-content: center;
-    margin-top: 2rem;
+    gap: 1rem;
+    padding: 1rem;
 }
 
 /* Ortak kutu stili */
@@ -121,6 +171,54 @@ h1 {
         grid-column: span 2;
         justify-self: center;
     }
+
+    #round8 {
+        grid-column: 1;
+    }
+
+    #round9 {
+        grid-column: 2;
+    }
+
+    #round10 {
+        grid-column: 3;
+    }
+
+    #round11 {
+        grid-column: 1;
+    }
+
+    #round12 {
+        grid-column: 2;
+    }
+
+    #round13 {
+        grid-column: 3;
+    }
+
+    #round14 {
+        grid-column: 4;
+    }
+
+    #round15 {
+        grid-column: 1;
+    }
+
+    #round16 {
+        grid-column: 2;
+    }
+    
+    #round17 {
+        grid-column: 3;
+    }
+    
+    #round18 {
+        grid-column: 4;
+    }
+    
+    #round19 {
+        grid-column: 5;
+    }
 }
 
 @media screen and (max-width: 600px) {
@@ -134,7 +232,19 @@ h1 {
     #round4,
     #round5,
     #round6,
-    #round7 {
+    #round7,
+    #round8,
+    #round9,
+    #round10,
+    #round11,
+    #round12,
+    #round13,
+    #round14,
+    #round15,
+    #round16,
+    #round17,
+    #round18,
+    #round19  {
         grid-column: auto;
     }
 }

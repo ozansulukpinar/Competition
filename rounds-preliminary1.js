@@ -1,8 +1,8 @@
-// rounds-quarter.js
+// rounds-preliminary1.js
 import { db } from './firebase-init.js';
 import { ref, get, set } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-const rounds = ["round1", "round2", "round3", "round4"];
+const rounds = ["round15", "round16", "round17", "round18", "round19"];
 const currentUser = sessionStorage.getItem("username");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popup-message");
@@ -80,7 +80,7 @@ function loadAllRounds() {
     });
 }
 
-async function generateSemiFinalistsIfReady() {
+async function generatePreliminary2FinalistsIfReady() {
     try {
         const [usersSnap, progressSnap] = await Promise.all([
             get(ref(db, 'users')),
@@ -92,22 +92,22 @@ async function generateSemiFinalistsIfReady() {
         const users = Object.values(usersSnap.val()).filter(u => u.role === 'jury');
         const progress = progressSnap.val();
 
-        const allDone = users.every(u => progress[u.username] === 'semi');
+        const allDone = users.every(u => progress[u.username] === 'preliminary2');
         if (!allDone) return;
 
-        const [quarterSnap, participantsSnap] = await Promise.all([
-            get(ref(db, 'roundResults/quarter')),
+        const [preliminary1Snap, participantsSnap] = await Promise.all([
+            get(ref(db, 'roundResults/preliminary1')),
             get(ref(db, 'participants'))
         ]);
 
-        if (!quarterSnap.exists() || !participantsSnap.exists()) return;
+        if (!preliminary1Snap.exists() || !participantsSnap.exists()) return;
 
-        const quarterResults = quarterSnap.val();
+        const preliminary1Results = preliminary1Snap.val();
         const participants = Object.values(participantsSnap.val());
 
         const scores = {};
 
-        for (const [jury, evaluations] of Object.entries(quarterResults)) {
+        for (const [jury, evaluations] of Object.entries(preliminary1Results)) {
             evaluations.forEach(({ participantId, pass }) => {
                 if (!scores[participantId]) scores[participantId] = 0;
                 if (pass) scores[participantId]++;
@@ -122,12 +122,12 @@ async function generateSemiFinalistsIfReady() {
         const topFollowers = enriched
             .filter(p => p.role === 'follower')
             .sort((a, b) => b.score - a.score)
-            .slice(0, 14);
+            .slice(0, 40);
 
         const topLeaders = enriched
             .filter(p => p.role === 'leader')
             .sort((a, b) => b.score - a.score)
-            .slice(0, 14);
+            .slice(0, 40);
 
         // Karıştırma fonksiyonu
         function shuffle(array) {
@@ -141,23 +141,41 @@ async function generateSemiFinalistsIfReady() {
         const shuffledFollowers = shuffle([...topFollowers]);
         const shuffledLeaders = shuffle([...topLeaders]);
 
-        const round5 = [
-            ...shuffledFollowers.slice(0, 7),
-            ...shuffledLeaders.slice(0, 7)
+        const round11 = [
+            ...shuffledFollowers.slice(0, 10),
+            ...shuffledLeaders.slice(0, 10)
         ];
 
-        const round6 = [
-            ...shuffledFollowers.slice(0, 7),
-            ...shuffledLeaders.slice(0, 7)
+        const round12 = [
+            ...shuffledFollowers.slice(0, 10),
+            ...shuffledLeaders.slice(0, 10)
+        ];
+
+        const round13 = [
+            ...shuffledFollowers.slice(0, 10),
+            ...shuffledLeaders.slice(0, 10)
+        ];
+
+        const round14 = [
+            ...shuffledFollowers,
+            ...shuffledLeaders
         ];
 
         // Kaydet
         await Promise.all([
-            set(ref(db, 'roundParticipants/round5'), round5.reduce((acc, val, i) => {
+            set(ref(db, 'roundParticipants/round11'), round11.reduce((acc, val, i) => {
                 acc[i] = val;
                 return acc;
             }, {})),
-            set(ref(db, 'roundParticipants/round6'), round6.reduce((acc, val, i) => {
+            set(ref(db, 'roundParticipants/round12'), round12.reduce((acc, val, i) => {
+                acc[i] = val;
+                return acc;
+            }, {})),
+            set(ref(db, 'roundParticipants/round13'), round13.reduce((acc, val, i) => {
+                acc[i] = val;
+                return acc;
+            }, {})),
+            set(ref(db, 'roundParticipants/round14'), round14.reduce((acc, val, i) => {
                 acc[i] = val;
                 return acc;
             }, {}))
@@ -165,7 +183,7 @@ async function generateSemiFinalistsIfReady() {
 
     } catch (err) {
         console.error(err);
-        showPopup("Error during save semi-finalists");
+        showPopup("Error during save preliminary II competitors");
     }
 }
 
@@ -185,16 +203,16 @@ function validateAndSave() {
     const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on');
     const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on');
 
-    const followerDiff = followers.length - 14;
-    const leaderDiff = leaders.length - 14;
+    const followerDiff = followers.length - 40;
+    const leaderDiff = leaders.length - 40;
 
     if (followerDiff !== 0 || leaderDiff !== 0) {
         let msg = "";
         if (followerDiff !== 0) {
-            msg += `${Math.abs(followerDiff)} ${followerDiff > 0 ? "extra followers selected" : "missing followers is there"} . Please ${followerDiff > 0 ? "reduce to" : "increase to"} 14. \n`;
+            msg += `${Math.abs(followerDiff)} ${followerDiff > 0 ? "extra followers selected" : "missing followers is there"} . Please ${followerDiff > 0 ? "reduce to" : "increase to"} 40. \n`;
         }
         if (leaderDiff !== 0) {
-            msg += `${Math.abs(leaderDiff)} ${leaderDiff > 0 ? "extra leaders selected" : "missing leaders is there"} . Please ${leaderDiff > 0 ? "reduce to" : "increase to"} 14.`;
+            msg += `${Math.abs(leaderDiff)} ${leaderDiff > 0 ? "extra leaders selected" : "missing leaders is there"} . Please ${leaderDiff > 0 ? "reduce to" : "increase to"} 40.`;
         }
         showPopup(msg);
         return;
@@ -208,9 +226,9 @@ function validateAndSave() {
         passed: button.dataset.state === "on"
     }));
 
-    set(ref(db, `roundResults/quarter/${currentUser}`), finalData).then(() => {
-        await generateSemiFinalistsIfReady();
-        await updateJuryProgress(`${currentUser}`, 'semi');
+    set(ref(db, `roundResults/preliminary1/${currentUser}`), finalData).then(() => {
+        await generatePreliminary2FinalistsIfReady();
+        await updateJuryProgress(`${currentUser}`, 'preliminary2');
         globalSaveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
     });

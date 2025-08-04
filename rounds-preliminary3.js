@@ -80,6 +80,125 @@ function loadAllRounds() {
     });
 }
 
+async function generateQuarterFinalistsIfReady() {
+    try {
+        const [usersSnap, progressSnap] = await Promise.all([
+            get(ref(db, 'users')),
+            get(ref(db, 'juryProgress'))
+        ]);
+
+        if (!usersSnap.exists() || !progressSnap.exists()) return;
+
+        const users = Object.values(usersSnap.val()).filter(u => u.role === 'jury');
+        const progress = progressSnap.val();
+
+        const allDone = users.every(u => progress[u.username] === 'quarter');
+        if (!allDone) return;
+
+        const [preliminary3Snap, participantsSnap] = await Promise.all([
+            get(ref(db, 'roundResults/preliminary3')),
+            get(ref(db, 'participants'))
+        ]);
+
+        if (!preliminary3Snap.exists() || !participantsSnap.exists()) return;
+
+        const preliminary3Results = preliminary3Snap.val();
+        const participants = Object.values(participantsSnap.val());
+
+        const scores = {};
+
+        for (const [jury, evaluations] of Object.entries(preliminary3Results)) {
+            evaluations.forEach(({ participantId, pass }) => {
+                if (!scores[participantId]) scores[participantId] = 0;
+                if (pass) scores[participantId]++;
+            });
+        }
+
+        const enriched = participants.map(p => ({
+            ...p,
+            score: scores[p.id] || 0
+        }));
+
+        const topFollowers = enriched
+            .filter(p => p.role === 'follower')
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 28);
+
+        const topLeaders = enriched
+            .filter(p => p.role === 'leader')
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 28);
+
+        // Karıştırma fonksiyonu
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        const shuffledFollowers = shuffle([...topFollowers]);
+        const shuffledLeaders = shuffle([...topLeaders]);
+
+        const round1 = [
+            ...shuffledFollowers.slice(0, 7),
+            ...shuffledLeaders.slice(0, 7)
+        ];
+
+        const round2 = [
+            ...shuffledFollowers.slice(0, 7),
+            ...shuffledLeaders.slice(0, 7)
+        ];
+
+        const round3 = [
+            ...shuffledFollowers.slice(0, 7),
+            ...shuffledLeaders.slice(0, 7)
+        ];
+
+        const round4 = [
+            ...shuffledFollowers,
+            ...shuffledLeaders
+        ];
+
+        // Kaydet
+        await Promise.all([
+            set(ref(db, 'roundParticipants/round1'), round1.reduce((acc, val, i) => {
+                acc[i] = val;
+                return acc;
+            }, {})),
+            set(ref(db, 'roundParticipants/round2'), round2.reduce((acc, val, i) => {
+                acc[i] = val;
+                return acc;
+            }, {})),
+            set(ref(db, 'roundParticipants/round3'), round3.reduce((acc, val, i) => {
+                acc[i] = val;
+                return acc;
+            }, {})),
+            set(ref(db, 'roundParticipants/round4'), round4.reduce((acc, val, i) => {
+                acc[i] = val;
+                return acc;
+            }, {}))
+        ]);
+
+    } catch (err) {
+        console.error(err);
+        showPopup("Error during save quarter-finalists");
+    }
+}
+
+async function updateJuryProgress(username, roundName) {
+    if (!username || !roundName) return;
+
+    try {
+        const progressRef = ref(db, `juryProgress/${username}`);
+        await set(progressRef, roundName);
+        console.log(`Progress updated: ${username} → ${roundName}`);
+    } catch (err) {
+        console.error("Error updating jury progress:", err);
+    }
+}
+
 function validateAndSave() {
     const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on');
     const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on');
@@ -90,10 +209,10 @@ function validateAndSave() {
     if (followerDiff !== 0 || leaderDiff !== 0) {
         let msg = "";
         if (followerDiff !== 0) {
-            msg += `${Math.abs(followerDiff)} ${followerDiff > 0 ? "extra followers selected" : "missing followers is there"} . Please ${followerDiff > 0 ? "reduce to" : "increase to"} 15. \n`;
+            msg += `${Math.abs(followerDiff)} ${followerDiff > 0 ? "extra followers selected" : "missing followers is there"} . Please ${followerDiff > 0 ? "reduce to" : "increase to"} 28. \n`;
         }
         if (leaderDiff !== 0) {
-            msg += `${Math.abs(leaderDiff)} ${leaderDiff > 0 ? "extra leaders selected" : "missing leaders is there"} . Please ${leaderDiff > 0 ? "reduce to" : "increase to"} 15.`;
+            msg += `${Math.abs(leaderDiff)} ${leaderDiff > 0 ? "extra leaders selected" : "missing leaders is there"} . Please ${leaderDiff > 0 ? "reduce to" : "increase to"} 28.`;
         }
         showPopup(msg);
         return;
@@ -108,8 +227,10 @@ function validateAndSave() {
     }));
 
     set(ref(db, `roundResults/preliminary3/${currentUser}`), finalData).then(() => {
+        await generateQuarterFinalistsIfReady();
+        await updateJuryProgress(`${currentUser}`, 'quarter');
         globalSaveBtn.disabled = true;
-        showPopup("Preliminary III. evaluation saved successfully.");
+        window.location.href = "jury-dashboard.html";
     });
 }
 

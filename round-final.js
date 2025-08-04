@@ -159,7 +159,7 @@ function loadParticipants() {
 }
 
 saveBtn.addEventListener("click", () => {
-  const saveRef = ref(db, `roundResults/${roundName}/${currentUser}`);
+  const saveRef = ref(db, `roundResults/final/${currentUser}`);
   const dataToSave = Object.entries(selections).map(([id, rank]) => ({
     jury: currentUser,
     participantId: id,

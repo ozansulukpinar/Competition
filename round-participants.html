@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Round Participants</title>
+    <link rel="stylesheet" href="round-participants.css" />
+    <script type="module" src="round-participants.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Section headers and tables will be dynamically generated -->
+        <div id="table-sections"></div>
+        <div class="button-group">
+            <button id="back-eval" class="back-btn">Back</button>
+        </div>
+    </div>
+
+    <!-- Add Participant Popup -->
+    <div id="formPopup" class="popup hidden">
+        <div class="popup-content">
+            <span class="close-btn" id="formClose">&times;</span>
+            <form id="participantForm">
+                <input type="number" id="participantId" placeholder="ID" required />
+                <select id="participantRole" required>
+                    <option value="">-- Select Role --</option>
+                    <option value="follower">follower</option>
+                    <option value="leader">leader</option>
+                </select>
+                <div id="formWarning" class="warning hidden"></div>
+                <button type="submit" class="save-btn">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Popup -->
+    <div id="confirmPopup" class="popup hidden">
+        <div class="popup-content">
+            <p>Are you sure to delete this record?</p>
+            <div class="popup-actions">
+                <button id="confirmDelete">OK</button>
+                <button id="cancelDelete">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Popup -->
+    <div id="infoPopup" class="popup hidden">
+        <div class="popup-content">
+            <p id="infoMessage"></p>
+            <button id="infoClose">OK</button>
+        </div>
+    </div>
+</body>
+
+</html>

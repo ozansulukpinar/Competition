@@ -27,7 +27,7 @@ const progressSnap = await get(ref(db, `juryProgress/${currentUser}`));
 const currentKey = progressSnap.exists() ? progressSnap.val() : null;
 
 const roundOrder = [
-  "quarter", "semi", "final", "reround"
+  "preliminary1", "preliminary2", "preliminary3", "quarter", "semi", "final", "reround"
 ];
 
 let currentIndex = 0;
@@ -54,7 +54,7 @@ roundButtons.forEach((btn, idx) => {
 roundButtons.forEach((btn, index) => {
   btn.addEventListener("click", () => {
     // Her turun ayrı sayfasına yönlendir
-    if (index == 3)
+    if (index == 6)
       window.location.href = `reround.html`;
     else
       window.location.href = roundOrder[index] + `.html`;

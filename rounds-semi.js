@@ -80,6 +80,86 @@ function loadAllRounds() {
     });
 }
 
+async function generateFinalistsIfReady() {
+    try {
+        const [usersSnap, progressSnap] = await Promise.all([
+            get(ref(db, 'users')),
+            get(ref(db, 'juryProgress'))
+        ]);
+
+        if (!usersSnap.exists() || !progressSnap.exists()) return;
+
+        const users = Object.values(usersSnap.val()).filter(u => u.role === 'jury');
+        const progress = progressSnap.val();
+
+        const allDone = users.every(u => progress[u.username] === 'final');
+        if (!allDone) return;
+
+        const [semiSnap, participantsSnap] = await Promise.all([
+            get(ref(db, 'roundResults/semi')),
+            get(ref(db, 'participants'))
+        ]);
+
+        if (!semiSnap.exists() || !participantsSnap.exists()) return;
+
+        const semiResults = semiSnap.val();
+        const participants = Object.values(participantsSnap.val());
+
+        const scores = {};
+
+        for (const [jury, evaluations] of Object.entries(semiResults)) {
+            evaluations.forEach(({ participantId, pass }) => {
+                if (!scores[participantId]) scores[participantId] = 0;
+                if (pass) scores[participantId]++;
+            });
+        }
+
+        const enriched = participants.map(p => ({
+            ...p,
+            score: scores[p.id] || 0
+        }));
+
+        const topFollowers = enriched
+            .filter(p => p.role === 'follower')
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 7);
+
+        const topLeaders = enriched
+            .filter(p => p.role === 'leader')
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 7);
+
+        const round7 = [
+            ...topFollowers,
+            ...topLeaders
+        ];
+
+        // Kaydet
+        await Promise.all([
+            set(ref(db, 'roundParticipants/round7'), round7.reduce((acc, val, i) => {
+                acc[i] = val;
+                return acc;
+            }, {}))
+        ]);
+
+    } catch (err) {
+        console.error(err);
+        showPopup("Error during save finalists");
+    }
+}
+
+async function updateJuryProgress(username, roundName) {
+    if (!username || !roundName) return;
+
+    try {
+        const progressRef = ref(db, `juryProgress/${username}`);
+        await set(progressRef, roundName);
+        console.log(`Progress updated: ${username} → ${roundName}`);
+    } catch (err) {
+        console.error("Error updating jury progress:", err);
+    }
+}
+
 function validateAndSave() {
     const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on');
     const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on');
@@ -108,8 +188,10 @@ function validateAndSave() {
     }));
 
     set(ref(db, `roundResults/semi/${currentUser}`), finalData).then(() => {
+        await generateFinalistsIfReady();
+        await updateJuryProgress(`${currentUser}`, 'final');
         globalSaveBtn.disabled = true;
-        showPopup("Semi finals evaluation saved successfully.");
+        window.location.href = "jury-dashboard.html";
     });
 }
 

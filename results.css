@@ -32,7 +32,6 @@
   align-items: flex-start;
   gap: 2rem;
   flex-wrap: nowrap;
-  /* alt alta geçmeyi engeller */
   margin-top: 2rem;
 }
 
@@ -59,22 +58,16 @@
   font-weight: bold;
 }
 
-/* .result-table td:last-child {
-  background-color: #FFFF00;
-} */
-
 .result-table td {
   font-size: 1rem;
 }
 
 .result-table td.check {
   background-color: #6db36d;
-  /* orman yeşiline yakın */
 }
 
 .result-table td.cross {
   background-color: #e57373;
-  /* daha güçlü kırmızı */
 }
 
 .back-btn {

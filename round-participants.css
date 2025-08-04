@@ -1,0 +1,223 @@
+/* round-participants.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 1.5rem;
+    background-color: #f4f4f4;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.table-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.round-table {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    min-width: 180px;
+    max-width: 220px;
+    flex: 1 1 180px;
+}
+
+.round-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.round-name {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.add-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: green;
+    color: white;
+    font-size: 1rem;
+    text-align: center;
+    line-height: 28px;
+    cursor: pointer;
+    border: none;
+}
+
+.participant-cell {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #eee;
+    margin: 0.3rem 0;
+    border-radius: 4px;
+    background-color: #fafafa;
+    font-size: 0.95rem;
+}
+
+.delete-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    line-height: 22px;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+}
+
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.popup.hidden {
+    display: none;
+}
+
+.popup-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 300px;
+    position: relative;
+    text-align: center;
+}
+
+.popup-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+input,
+select {
+    width: 92%;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+#participantRole {
+    width: 100%;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 1.2rem;
+    color: #999;
+    cursor: pointer;
+}
+
+.popup-actions button {
+    margin: 0 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#confirmDelete {
+    background-color: red;
+    color: white;
+}
+
+#cancelDelete {
+    background-color: #ccc;
+}
+
+#infoClose {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: #008080;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.warning {
+    color: red;
+    font-size: 0.9rem;
+}
+
+.warning.hidden {
+    display: none;
+}
+
+.save-btn {
+    background-color: teal;
+    color: white;
+    border: none;
+    padding: 0.6rem;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.table-columns {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+.round-table>.table-columns>div {
+    flex: 1;
+}
+
+.back-btn {
+    margin-top: 2rem;
+    display: block;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    background-color: #008080;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.button-group {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}

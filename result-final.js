@@ -2,7 +2,6 @@
 import { db } from './firebase-init.js';
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
-const roundName = "round7";
 let currentUser = window.sessionStorage.getItem("username");
 
 await authenticationControl();
@@ -24,7 +23,7 @@ async function loadData() {
   const [participantsSnap, juriesSnap, resultsSnap] = await Promise.all([
     get(ref(db, 'participants')),
     get(ref(db, 'users')),
-    get(ref(db, `roundResults/${roundName}`))
+    get(ref(db, `roundResults/final`))
   ]);
 
   if (!participantsSnap.exists() || !juriesSnap.exists() || !resultsSnap.exists()) return;

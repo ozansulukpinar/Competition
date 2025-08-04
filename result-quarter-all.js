@@ -19,39 +19,33 @@ async function authenticationControl() {
 const followersTable = document.getElementById("followers-table");
 const leadersTable = document.getElementById("leaders-table");
 
-const roundNames = ["round1", "round2", "round3", "round4"];
-
 async function loadData() {
-  const [participantsSnap, juriesSnap, ...resultsSnaps] = await Promise.all([
+  const [participantsSnap, juriesSnap, quarterResultsSnap] = await Promise.all([
     get(ref(db, 'participants')),
     get(ref(db, 'users')),
-    ...roundNames.map(r => get(ref(db, `roundResults/${r}`)))
+    get(ref(db, 'roundResults/quarter'))
   ]);
 
-  if (!participantsSnap.exists() || !juriesSnap.exists()) return;
+  if (!participantsSnap.exists() || !juriesSnap.exists() || !quarterResultsSnap.exists()) return;
 
   const participants = Object.values(participantsSnap.val());
   const juries = Object.values(juriesSnap.val()).filter(u => u.role === 'jury');
-  const juryCount = juries.length;
   const juryUsernames = juries.map(j => j.username);
 
   const allResults = {};
+  const resultData = quarterResultsSnap.val();
 
-  resultsSnaps.forEach((snap, idx) => {
-    if (!snap.exists()) return;
-    const resultData = snap.val();
-    for (const [juryUsername, evaluations] of Object.entries(resultData)) {
-      evaluations.forEach(evaluation => {
-        const pid = evaluation.participantId;
-        if (!allResults[pid]) {
-          allResults[pid] = { passCount: 0, votes: {}, data: null };
-        }
-        allResults[pid].votes[juryUsername] =
-          (allResults[pid].votes[juryUsername] || 0) + (evaluation.pass ? 1 : 0);
-        if (evaluation.pass) allResults[pid].passCount++;
-      });
-    }
-  });
+  for (const [juryUsername, evaluations] of Object.entries(resultData)) {
+    evaluations.forEach(evaluation => {
+      const pid = evaluation.participantId;
+      if (!allResults[pid]) {
+        allResults[pid] = { passCount: 0, votes: {}, data: null };
+      }
+      allResults[pid].votes[juryUsername] =
+        (allResults[pid].votes[juryUsername] || 0) + (evaluation.pass ? 1 : 0);
+      if (evaluation.pass) allResults[pid].passCount++;
+    });
+  }
 
   participants.forEach(p => {
     if (allResults[p.id]) allResults[p.id].data = p;
