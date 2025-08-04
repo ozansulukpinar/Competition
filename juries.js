@@ -20,7 +20,9 @@ const formWarning = document.getElementById("formWarning");
 const backBtn = document.getElementById("back-eval");
 
 let currentEditUsername = null;
+let currentEditId = null;
 let deleteTargetUsername = null;
+let deleteTargetId = null;
 
 function showPopup(popup) {
     popup.classList.remove("hidden");
@@ -63,7 +65,7 @@ juryForm.addEventListener("submit", async e => {
     const usersSnap = await get(usersRef);
     const users = usersSnap.exists() ? usersSnap.val() : {};
 
-    if (!currentEditUsername && Object.values(users).some(u => u.id == id)) {
+    if (Object.values(users).some(u => u.id == id) && id != currentEditId) {
         formWarning.textContent = "There is already a record. Change the id";
         formWarning.classList.remove("hidden");
         return;
@@ -75,16 +77,16 @@ juryForm.addEventListener("submit", async e => {
         role: "jury"
     };
 
-    if (currentEditUsername && currentEditUsername !== username) {
-        // Username değiştiyse eski kaydı sil
+    if (currentEditUsername) {
+        // Eski kaydı sil
         await Promise.all([
-            remove(ref(db, `users/${currentEditUsername}`)),
+            remove(ref(db, `users/${currentEditId}`)),
             remove(ref(db, `juryProgress/${currentEditUsername}`))
         ]);
     }
 
     await Promise.all([
-        set(ref(db, `users/${username}`), newData),
+        set(ref(db, `users/${id}`), newData),
         set(juryProgressRef, progress)
     ]);
 
@@ -96,7 +98,7 @@ juryForm.addEventListener("submit", async e => {
 confirmDeleteBtn.addEventListener("click", async () => {
     if (!deleteTargetUsername) return;
     await Promise.all([
-        remove(ref(db, `users/${deleteTargetUsername}`)),
+        remove(ref(db, `users/${deleteTargetId}`)),
         remove(ref(db, `juryProgress/${deleteTargetUsername}`))
     ]);
     hidePopup(confirmPopup);
@@ -120,6 +122,7 @@ function buildRow(user, progress) {
 
     editBtn.addEventListener("click", () => {
         currentEditUsername = user.username;
+        currentEditId = user.id;
         juryId.value = user.id;
         juryUsername.value = user.username;
         juryProgress.value = progress;
@@ -129,6 +132,7 @@ function buildRow(user, progress) {
 
     deleteBtn.addEventListener("click", () => {
         deleteTargetUsername = user.username;
+        deleteTargetId = user.id;
         showPopup(confirmPopup);
     });
 

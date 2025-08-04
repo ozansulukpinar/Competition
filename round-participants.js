@@ -71,7 +71,7 @@ participantForm.addEventListener("submit", async e => {
         const snap = await get(ref(db, `roundParticipants/${round}`));
         if (!snap.exists()) continue;
         const entries = Object.values(snap.val());
-        if (entries.some(p => p.id === id)) {
+        if (entries.some(p => p.id == id)) {
             showMessage("This id is already registered on this stage. Check it!");
             return;
         }
