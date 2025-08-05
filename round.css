@@ -165,3 +165,40 @@
   pointer-events: none;
   user-select: none;
 }
+
+.warning-message{
+  text-align: center;
+  font-size: 1.4rem;
+  color: red;
+  margin-top: 2rem;
+  -webkit-animation: name 1.25s infinite;
+}
+
+.selection-summary {
+  text-align: center;
+  font-size: 1.4rem;
+  color: red;
+  -webkit-animation: name 1.25s infinite;
+}
+
+@keyframes name {
+  0% {
+    color: rgb(173, 19, 219);
+  }
+
+  50% {
+    color: blue;
+  }
+
+  100% {
+    color: rgb(173, 19, 219);
+  }
+}
+
+#sticky-header{
+  position: sticky;
+  top: 0;
+  padding: 10px 16px;
+  background: white;
+  color: white;
+}

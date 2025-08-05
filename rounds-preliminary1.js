@@ -50,6 +50,7 @@ function createParticipantRow(participant, group, container) {
             btn.style.backgroundColor = "red";
             btn.textContent = "No";
         }
+        updateSelectionSummary();
     });
 
     toggle.appendChild(btn);
@@ -92,8 +93,9 @@ async function generatePreliminary2FinalistsIfReady() {
         const users = Object.values(usersSnap.val()).filter(u => u.role === 'jury');
         const progress = progressSnap.val();
 
-        const allDone = users.every(u => progress[u.username] === 'preliminary2');
-        if (!allDone) return;
+        // Eğer 5 jüri de "preliminary2" aşamasındaysa devam edilecek
+        const juriesInPreliminary2 = users.filter(u => progress[u.username] === 'preliminary2');
+        if (juriesInPreliminary2.length < 5) return;
 
         const [preliminary1Snap, participantsSnap] = await Promise.all([
             get(ref(db, 'roundResults/preliminary1')),
@@ -199,6 +201,13 @@ async function updateJuryProgress(username, roundName) {
     }
 }
 
+function updateSelectionSummary() {
+    const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on').length;
+    const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on').length;
+    document.getElementById("selection-summary").textContent =
+        `So far you have selected ${followers} followers and ${leaders} leaders`;
+}
+
 function validateAndSave() {
     const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on');
     const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on');
@@ -227,8 +236,8 @@ function validateAndSave() {
     }));
 
     set(ref(db, `roundResults/preliminary1/${currentUser}`), finalData).then(() => {
-        await generatePreliminary2FinalistsIfReady();
-        await updateJuryProgress(`${currentUser}`, 'preliminary2');
+        generatePreliminary2FinalistsIfReady();
+        updateJuryProgress(`${currentUser}`, 'preliminary2');
         globalSaveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
     });
@@ -236,3 +245,4 @@ function validateAndSave() {
 
 globalSaveBtn.addEventListener("click", validateAndSave);
 loadAllRounds();
+updateSelectionSummary();

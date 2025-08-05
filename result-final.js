@@ -37,10 +37,12 @@ async function loadData() {
 
   for (const [jury, votes] of Object.entries(results)) {
     votes.forEach(({ participantId, rank }) => {
-      if (!allVotes[participantId]) allVotes[participantId] = { total: 0, count: 0, votes: {}, data: null };
-      allVotes[participantId].total += parseInt(rank);
+      if (!allVotes[participantId]) allVotes[participantId] = { total: 0, count: 0, votes: {}, data: null, rankCounts: {} };
+      const rankInt = parseInt(rank);
+      allVotes[participantId].total += rankInt;
       allVotes[participantId].count++;
-      allVotes[participantId].votes[jury] = rank;
+      allVotes[participantId].votes[jury] = rankInt;
+      allVotes[participantId].rankCounts[rankInt] = (allVotes[participantId].rankCounts[rankInt] || 0) + 1;
     });
   }
 
@@ -58,13 +60,23 @@ async function loadData() {
     if (!data) return;
     const avg = total / count;
     const row = buildRow(data, votes, avg, juryUsernames);
-    const obj = { row, avg };
+    const obj = { row, avg, rankCounts };
     if (data.role === "follower") followerRows.push(obj);
     else leaderRows.push(obj);
   });
 
-  followerRows.sort((a, b) => a.avg - b.avg).forEach(({ row }) => followersTable.appendChild(row));
-  leaderRows.sort((a, b) => a.avg - b.avg).forEach(({ row }) => leadersTable.appendChild(row));
+  function compareByRanks(a, b) {
+    if (a.avg !== b.avg) return a.avg - b.avg;
+    for (let i = 1; i <= 6; i++) {
+      const aCount = a.rankCounts[i] || 0;
+      const bCount = b.rankCounts[i] || 0;
+      if (aCount !== bCount) return bCount - aCount;
+    }
+    return 0;
+  }
+
+  followerRows.sort(compareByRanks).forEach(({ row }) => followersTable.appendChild(row));
+  leaderRows.sort(compareByRanks).forEach(({ row }) => leadersTable.appendChild(row));
 }
 
 function renderHeader(table, jurors) {

@@ -50,6 +50,7 @@ function createParticipantRow(participant, group, container) {
             btn.style.backgroundColor = "red";
             btn.textContent = "No";
         }
+        updateSelectionSummary();
     });
 
     toggle.appendChild(btn);
@@ -92,8 +93,9 @@ async function generateSemiFinalistsIfReady() {
         const users = Object.values(usersSnap.val()).filter(u => u.role === 'jury');
         const progress = progressSnap.val();
 
-        const allDone = users.every(u => progress[u.username] === 'semi');
-        if (!allDone) return;
+        // Eğer 7 jüri de "semi" aşamasındaysa devam edilecek
+        const juriesInSemi = users.filter(u => progress[u.username] === 'semi');
+        if (juriesInSemi.length < 7) return;
 
         const [quarterSnap, participantsSnap] = await Promise.all([
             get(ref(db, 'roundResults/quarter')),
@@ -122,12 +124,12 @@ async function generateSemiFinalistsIfReady() {
         const topFollowers = enriched
             .filter(p => p.role === 'follower')
             .sort((a, b) => b.score - a.score)
-            .slice(0, 14);
+            .slice(0, 12);
 
         const topLeaders = enriched
             .filter(p => p.role === 'leader')
             .sort((a, b) => b.score - a.score)
-            .slice(0, 14);
+            .slice(0, 13);
 
         // Karıştırma fonksiyonu
         function shuffle(array) {
@@ -142,13 +144,13 @@ async function generateSemiFinalistsIfReady() {
         const shuffledLeaders = shuffle([...topLeaders]);
 
         const round5 = [
-            ...shuffledFollowers.slice(0, 7),
+            ...shuffledFollowers.slice(0, 6),
             ...shuffledLeaders.slice(0, 7)
         ];
 
         const round6 = [
-            ...shuffledFollowers.slice(0, 7),
-            ...shuffledLeaders.slice(0, 7)
+            ...shuffledFollowers.slice(0, 6),
+            ...shuffledLeaders.slice(0, 6)
         ];
 
         // Kaydet
@@ -181,20 +183,27 @@ async function updateJuryProgress(username, roundName) {
     }
 }
 
+function updateSelectionSummary() {
+    const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on').length;
+    const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on').length;
+    document.getElementById("selection-summary").textContent =
+        `So far you have selected ${followers} followers and ${leaders} leaders`;
+}
+
 function validateAndSave() {
     const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on');
     const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on');
 
-    const followerDiff = followers.length - 14;
-    const leaderDiff = leaders.length - 14;
+    const followerDiff = followers.length - 12;
+    const leaderDiff = leaders.length - 13;
 
     if (followerDiff !== 0 || leaderDiff !== 0) {
         let msg = "";
         if (followerDiff !== 0) {
-            msg += `${Math.abs(followerDiff)} ${followerDiff > 0 ? "extra followers selected" : "missing followers is there"} . Please ${followerDiff > 0 ? "reduce to" : "increase to"} 14. \n`;
+            msg += `${Math.abs(followerDiff)} ${followerDiff > 0 ? "extra followers selected" : "missing followers is there"} . Please ${followerDiff > 0 ? "reduce to" : "increase to"} 12. \n`;
         }
         if (leaderDiff !== 0) {
-            msg += `${Math.abs(leaderDiff)} ${leaderDiff > 0 ? "extra leaders selected" : "missing leaders is there"} . Please ${leaderDiff > 0 ? "reduce to" : "increase to"} 14.`;
+            msg += `${Math.abs(leaderDiff)} ${leaderDiff > 0 ? "extra leaders selected" : "missing leaders is there"} . Please ${leaderDiff > 0 ? "reduce to" : "increase to"} 13.`;
         }
         showPopup(msg);
         return;
@@ -209,8 +218,8 @@ function validateAndSave() {
     }));
 
     set(ref(db, `roundResults/quarter/${currentUser}`), finalData).then(() => {
-        await generateSemiFinalistsIfReady();
-        await updateJuryProgress(`${currentUser}`, 'semi');
+        generateSemiFinalistsIfReady();
+        updateJuryProgress(`${currentUser}`, 'semi');
         globalSaveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
     });
@@ -218,3 +227,4 @@ function validateAndSave() {
 
 globalSaveBtn.addEventListener("click", validateAndSave);
 loadAllRounds();
+updateSelectionSummary();

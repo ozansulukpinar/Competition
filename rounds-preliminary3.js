@@ -50,6 +50,7 @@ function createParticipantRow(participant, group, container) {
             btn.style.backgroundColor = "red";
             btn.textContent = "No";
         }
+        updateSelectionSummary();
     });
 
     toggle.appendChild(btn);
@@ -78,6 +79,8 @@ function loadAllRounds() {
     Promise.all(promises).then(() => {
         console.log("All round data loaded.");
     });
+
+    updateSelectionSummary();
 }
 
 async function generateQuarterFinalistsIfReady() {
@@ -92,8 +95,9 @@ async function generateQuarterFinalistsIfReady() {
         const users = Object.values(usersSnap.val()).filter(u => u.role === 'jury');
         const progress = progressSnap.val();
 
-        const allDone = users.every(u => progress[u.username] === 'quarter');
-        if (!allDone) return;
+        // Eğer 10 jüri de "quarter" aşamasındaysa devam edilecek
+        const juriesInQuarter = users.filter(u => progress[u.username] === 'quarter');
+        if (juriesInQuarter.length < 10) return;
 
         const [preliminary3Snap, participantsSnap] = await Promise.all([
             get(ref(db, 'roundResults/preliminary3')),
@@ -199,6 +203,13 @@ async function updateJuryProgress(username, roundName) {
     }
 }
 
+function updateSelectionSummary() {
+    const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on').length;
+    const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on').length;
+    document.getElementById("selection-summary").textContent =
+        `So far you have selected ${followers} followers and ${leaders} leaders`;
+}
+
 function validateAndSave() {
     const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on');
     const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on');
@@ -227,8 +238,8 @@ function validateAndSave() {
     }));
 
     set(ref(db, `roundResults/preliminary3/${currentUser}`), finalData).then(() => {
-        await generateQuarterFinalistsIfReady();
-        await updateJuryProgress(`${currentUser}`, 'quarter');
+        generateQuarterFinalistsIfReady();
+        updateJuryProgress(`${currentUser}`, 'quarter');
         globalSaveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
     });
@@ -236,3 +247,4 @@ function validateAndSave() {
 
 globalSaveBtn.addEventListener("click", validateAndSave);
 loadAllRounds();
+updateSelectionSummary();

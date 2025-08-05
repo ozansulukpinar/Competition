@@ -81,10 +81,10 @@ addBtn.addEventListener("click", () => {
 });
 
 startBtn.addEventListener("click", async () => {
-    if (followerCount !== leaderCount) {
-        showMessage("To start the competition, the number of followers and leaders should be equal.");
-        return;
-    }
+    // if (followerCount !== leaderCount) {
+    //     showMessage("To start the competition, the number of followers and leaders should be equal.");
+    //     return;
+    // }
 
     await initializeCompetitionRounds();
 });
