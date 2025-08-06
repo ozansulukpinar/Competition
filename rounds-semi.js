@@ -95,9 +95,9 @@ async function generateFinalistsIfReady() {
         const users = Object.values(usersSnap.val()).filter(u => u.role === 'jury');
         const progress = progressSnap.val();
 
-        // Eğer 7 jüri de "final" aşamasındaysa devam edilecek
+        // Eğer 10 jüri de "final" aşamasındaysa devam edilecek
         const juriesInFinal = users.filter(u => progress[u.username] === 'final');
-        if (juriesInFinal.length < 7) return;
+        if (juriesInFinal.length < 10) return;
 
         const [semiSnap, participantsSnap] = await Promise.all([
             get(ref(db, 'roundResults/semi')),

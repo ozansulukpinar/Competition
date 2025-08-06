@@ -97,9 +97,9 @@ async function generateQuarterFinalistsIfReady() {
         const users = Object.values(usersSnap.val()).filter(u => u.role === 'jury');
         const progress = progressSnap.val();
 
-        // Eğer 10 jüri de "quarter" aşamasındaysa devam edilecek
+        // Eğer 5 jüri de "quarter" aşamasındaysa devam edilecek
         const juriesInQuarter = users.filter(u => progress[u.username] === 'quarter');
-        if (juriesInQuarter.length < 10) return;
+        if (juriesInQuarter.length < 5) return;
 
         const [preliminary3Snap, participantsSnap] = await Promise.all([
             get(ref(db, 'roundResults/preliminary3')),
