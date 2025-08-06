@@ -69,10 +69,12 @@ function loadAllRounds() {
             const followersDiv = document.getElementById(`followers-${roundName}`);
             const leadersDiv = document.getElementById(`leaders-${roundName}`);
 
-            Object.values(data).forEach(participant => {
-                const container = participant.role === 'follower' ? followersDiv : leadersDiv;
-                createParticipantRow(participant, participant.role, container);
-            });
+            Object.values(data)
+                .sort((a, b) => a.id - b.id)
+                .forEach(participant => {
+                    const container = participant.role === 'follower' ? followersDiv : leadersDiv;
+                    createParticipantRow(participant, participant.role, container);
+                });
         });
     });
 
@@ -145,46 +147,33 @@ async function generateQuarterFinalistsIfReady() {
         const shuffledFollowers = shuffle([...topFollowers]);
         const shuffledLeaders = shuffle([...topLeaders]);
 
-        const round1 = [
-            ...shuffledFollowers.slice(0, 7),
-            ...shuffledLeaders.slice(0, 7)
-        ];
+        const roundAssignments = {
+            round1: {
+                followers: shuffledFollowers.splice(0, 7),
+                leaders: shuffledLeaders.splice(0, 7)
+            },
+            round2: {
+                followers: shuffledFollowers.splice(0, 7),
+                leaders: shuffledLeaders.splice(0, 7)
+            },
+            round3: {
+                followers: shuffledFollowers.splice(0, 7),
+                leaders: shuffledLeaders.splice(0, 7)
+            },
+            round4: {
+                followers: shuffledFollowers,
+                leaders: shuffledLeaders
+            }
+        };
 
-        const round2 = [
-            ...shuffledFollowers.slice(0, 7),
-            ...shuffledLeaders.slice(0, 7)
-        ];
-
-        const round3 = [
-            ...shuffledFollowers.slice(0, 7),
-            ...shuffledLeaders.slice(0, 7)
-        ];
-
-        const round4 = [
-            ...shuffledFollowers,
-            ...shuffledLeaders
-        ];
-
-        // Kaydet
-        await Promise.all([
-            set(ref(db, 'roundParticipants/round1'), round1.reduce((acc, val, i) => {
-                acc[i] = val;
+        for (const [round, data] of Object.entries(roundAssignments)) {
+            const combined = [...data.followers, ...data.leaders];
+            const roundRef = ref(db, `roundParticipants/${round}`);
+            await set(roundRef, combined.reduce((acc, item, i) => {
+                acc[i] = item;
                 return acc;
-            }, {})),
-            set(ref(db, 'roundParticipants/round2'), round2.reduce((acc, val, i) => {
-                acc[i] = val;
-                return acc;
-            }, {})),
-            set(ref(db, 'roundParticipants/round3'), round3.reduce((acc, val, i) => {
-                acc[i] = val;
-                return acc;
-            }, {})),
-            set(ref(db, 'roundParticipants/round4'), round4.reduce((acc, val, i) => {
-                acc[i] = val;
-                return acc;
-            }, {}))
-        ]);
-
+            }, {}));
+        }
     } catch (err) {
         console.error(err);
         showPopup("Error during save quarter-finalists");
@@ -210,7 +199,7 @@ function updateSelectionSummary() {
         `So far you have selected ${followers} followers and ${leaders} leaders`;
 }
 
-function validateAndSave() {
+async function validateAndSave() {
     const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on');
     const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on');
 
@@ -237,12 +226,15 @@ function validateAndSave() {
         passed: button.dataset.state === "on"
     }));
 
-    set(ref(db, `roundResults/preliminary3/${currentUser}`), finalData).then(() => {
-        generateQuarterFinalistsIfReady();
-        updateJuryProgress(`${currentUser}`, 'quarter');
+    try {
+        await set(ref(db, `roundResults/preliminary3/${currentUser}`), finalData);
+        await updateJuryProgress(`${currentUser}`, 'quarter');
+        await generateQuarterFinalistsIfReady();
         globalSaveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
-    });
+    } catch (error) {
+        console.error("Error saving results:", error);
+    }
 }
 
 globalSaveBtn.addEventListener("click", validateAndSave);

@@ -69,10 +69,12 @@ function loadAllRounds() {
             const followersDiv = document.getElementById(`followers-${roundName}`);
             const leadersDiv = document.getElementById(`leaders-${roundName}`);
 
-            Object.values(data).forEach(participant => {
-                const container = participant.role === 'follower' ? followersDiv : leadersDiv;
-                createParticipantRow(participant, participant.role, container);
-            });
+            Object.values(data)
+                .sort((a, b) => a.id - b.id)
+                .forEach(participant => {
+                    const container = participant.role === 'follower' ? followersDiv : leadersDiv;
+                    createParticipantRow(participant, participant.role, container);
+                });
         });
     });
 
@@ -131,19 +133,21 @@ async function generateFinalistsIfReady() {
             .sort((a, b) => b.score - a.score)
             .slice(0, 7);
 
-        const round7 = [
-            ...topFollowers,
-            ...topLeaders
-        ];
+        const roundAssignments = {
+            round7: {
+                followers: topFollowers,
+                leaders: topLeaders
+            }
+        };
 
-        // Kaydet
-        await Promise.all([
-            set(ref(db, 'roundParticipants/round7'), round7.reduce((acc, val, i) => {
-                acc[i] = val;
+        for (const [round, data] of Object.entries(roundAssignments)) {
+            const combined = [...data.followers, ...data.leaders];
+            const roundRef = ref(db, `roundParticipants/${round}`);
+            await set(roundRef, combined.reduce((acc, item, i) => {
+                acc[i] = item;
                 return acc;
-            }, {}))
-        ]);
-
+            }, {}));
+        }
     } catch (err) {
         console.error(err);
         showPopup("Error during save finalists");
@@ -169,7 +173,7 @@ function updateSelectionSummary() {
         `So far you have selected ${followers} followers and ${leaders} leaders`;
 }
 
-function validateAndSave() {
+async function validateAndSave() {
     const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on');
     const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on');
 
@@ -196,12 +200,15 @@ function validateAndSave() {
         passed: button.dataset.state === "on"
     }));
 
-    set(ref(db, `roundResults/semi/${currentUser}`), finalData).then(() => {
-        generateFinalistsIfReady();
-        updateJuryProgress(`${currentUser}`, 'final');
+    try {
+        await set(ref(db, `roundResults/semi/${currentUser}`), finalData);
+        await updateJuryProgress(`${currentUser}`, 'final');
+        await generateFinalistsIfReady();
         globalSaveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
-    });
+    } catch (error) {
+        console.error("Error saving results:", error);
+    }
 }
 
 globalSaveBtn.addEventListener("click", validateAndSave);

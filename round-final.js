@@ -44,7 +44,7 @@ function createParticipantRow(participant, group) {
 
   const label = document.createElement("div");
   label.className = "participant-label";
-  label.textContent = `${participant.id} - ${participant.name} ${participant.surname}`;
+  label.textContent = `${participant.id}`;
 
   const buttons = document.createElement("div");
   buttons.className = "toggle-switch";
@@ -149,11 +149,13 @@ function loadParticipants() {
       return;
     }
     const participants = snapshot.val();
-    Object.values(participants).forEach(p => {
-      const row = createParticipantRow(p, p.role);
-      if (p.role === "follower") followersDiv.appendChild(row);
-      else leadersDiv.appendChild(row);
-    });
+    Object.values(participants)
+      .sort((a, b) => a.id - b.id)
+      .forEach(p => {
+        const row = createParticipantRow(p, p.role);
+        if (p.role === "follower") followersDiv.appendChild(row);
+        else leadersDiv.appendChild(row);
+      });
     checkEnableSave();
   }).catch(err => console.log(err.message));
 }

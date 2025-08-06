@@ -1,8 +1,7 @@
-// result-quarter-1.js
+// result-reround.js
 import { db } from './firebase-init.js';
 import { ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
-const roundName = "reround";
 let currentUser = window.sessionStorage.getItem("username");
 
 await authenticationControl();
@@ -21,79 +20,83 @@ const followersTable = document.getElementById("followers-table");
 const leadersTable = document.getElementById("leaders-table");
 
 async function loadData() {
-  const [usersSnap, jurySnap, resultSnap] = await Promise.all([
+  const [participantsSnap, juriesSnap, resultsSnap] = await Promise.all([
     get(ref(db, 'participants')),
     get(ref(db, 'users')),
-    get(ref(db, `roundResults/${roundName}`))
+    get(ref(db, `roundResults/reround`))
   ]);
 
-  if (!usersSnap.exists() || !jurySnap.exists() || !resultSnap.exists()) return;
+  if (!participantsSnap.exists() || !juriesSnap.exists() || !resultsSnap.exists()) return;
 
-  const participants = Object.values(usersSnap.val());
-  const juries = Object.values(jurySnap.val()).filter(u => u.role === 'jury');
-  const results = resultSnap.val();
+  const participants = Object.values(participantsSnap.val());
+  const results = resultsSnap.val();
+  const juryUsernames = Object.keys(results);
 
-  const grouped = {};
-  juries.forEach(j => {
-    const juryResults = results[j.username] || [];
-    juryResults.forEach(r => {
-      if (!grouped[r.participantId]) grouped[r.participantId] = { passCount: 0, votes: {}, data: null };
-      grouped[r.participantId].votes[j.username] = r.pass;
-      if (r.pass) grouped[r.participantId].passCount++;
+  const allVotes = {};
+
+  for (const [jury, votes] of Object.entries(results)) {
+    votes.forEach(({ participantId, rank }) => {
+      if (!allVotes[participantId]) allVotes[participantId] = { total: 0, count: 0, votes: {}, data: null, rankCounts: {} };
+      const rankInt = parseInt(rank);
+      allVotes[participantId].total += rankInt;
+      allVotes[participantId].count++;
+      allVotes[participantId].votes[jury] = rankInt;
+      allVotes[participantId].rankCounts[rankInt] = (allVotes[participantId].rankCounts[rankInt] || 0) + 1;
     });
-  });
+  }
 
   participants.forEach(p => {
-    if (grouped[p.id]) grouped[p.id].data = p;
+    if (allVotes[p.id]) allVotes[p.id].data = p;
   });
 
   const followerRows = [];
   const leaderRows = [];
 
-  Object.entries(grouped).forEach(([id, { passCount, votes, data }]) => {
+  renderHeader(followersTable, juryUsernames);
+  renderHeader(leadersTable, juryUsernames);
+
+  Object.entries(allVotes).forEach(([pid, { total, count, votes, data, rankCounts }]) => {
     if (!data) return;
-    const row = buildRow(data, votes, passCount, juries);
-    if (data.role === "follower") followerRows.push({ row, passCount });
-    else leaderRows.push({ row, passCount });
+    const row = buildRow(data, votes, null, juryUsernames);
+    const obj = { row, rankCounts: allVotes[pid].rankCounts };
+    if (data.role === "follower") followerRows.push(obj);
+    else leaderRows.push(obj);
   });
 
-  followerRows.sort((a, b) => b.passCount - a.passCount).forEach(({ row }) => followersTable.appendChild(row));
-  leaderRows.sort((a, b) => b.passCount - a.passCount).forEach(({ row }) => leadersTable.appendChild(row));
+  function compareByRanks(a, b) {
+    for (let i = 1; i <= 7; i++) {
+      const aCount = a.rankCounts[i] || 0;
+      const bCount = b.rankCounts[i] || 0;
+      if (aCount !== bCount) return bCount - aCount;
+    }
+    return 0;
+  }
 
-  renderHeader(followersTable, juries);
-  renderHeader(leadersTable, juries);
+  followerRows.sort(compareByRanks).forEach(({ row }) => followersTable.appendChild(row));
+  leaderRows.sort(compareByRanks).forEach(({ row }) => leadersTable.appendChild(row));
 }
 
-function renderHeader(table, juries) {
+function renderHeader(table, jurors) {
   const tr = document.createElement("tr");
-  tr.innerHTML = `<th>Competitor No and Name Surname</th>
-    ${juries.map(j => `<th>${j.username}</th>`).join("")}
-    <th>Result</th>`;
+  tr.innerHTML = `<th>No.</th>
+    ${jurors.map(j => `<th>${j}</th>`).join("")}
+    `;
   table.appendChild(tr);
 }
 
-function buildRow(data, votes, passCount, juries) {
+function buildRow(data, votes, average, jurors) {
   const tr = document.createElement("tr");
-  const fullName = `${data.id} - ${data.name} ${data.surname}`;
+  const fullName = `${data.id}`;
 
   const tdName = document.createElement("td");
   tdName.innerHTML = '<b>' + fullName + '</b>';
   tr.appendChild(tdName);
 
-  juries.forEach(j => {
+  jurors.forEach(j => {
     const td = document.createElement("td");
-    const vote = votes[j.username];
-    td.innerHTML = vote === true
-      ? "✔️"
-      : vote === false
-        ? "❌"
-        : "-";
+    td.textContent = votes[j] || "-";
     tr.appendChild(td);
   });
-
-  const tdResult = document.createElement("td");
-  tdResult.textContent = passCount > juries.length / 2 ? "✔️" : "❌";
-  tr.appendChild(tdResult);
 
   return tr;
 }

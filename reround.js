@@ -1,23 +1,17 @@
 // reround.js
 import { db } from './firebase-init.js';
-import {
-  ref,
-  get,
-  set,
-  push,
-  child,
-  update
-} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+import { ref, get, set } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
 const followersDiv = document.getElementById("followers");
 const leadersDiv = document.getElementById("leaders");
 const saveBtn = document.getElementById("save-eval");
 const popup = document.getElementById("popup");
 const popupMessage = document.getElementById("popup-message");
-const popupClose = document.getElementById("popup-close");
+const popupOk = document.getElementById("popup-ok");
 
-const roundName = "reround";
+const roundName = "round20";
 let currentUser = window.sessionStorage.getItem("username");
+let selections = {};
 
 await authenticationControl();
 
@@ -31,96 +25,155 @@ async function authenticationControl() {
   }
 }
 
-let evaluations = {}; // key: participantId, value: true/false
-
 function showPopup(msg) {
   popupMessage.textContent = msg;
   popup.classList.remove("hidden");
+  document.querySelector(".round-screen").classList.add("blur-background");
 }
 
-popupClose.addEventListener("click", () => {
+popupOk.addEventListener("click", () => {
   popup.classList.add("hidden");
+  document.querySelector(".round-screen").classList.remove("blur-background");
 });
 
-function createParticipantRow(participant) {
+function createParticipantRow(participant, group) {
   const row = document.createElement("div");
-  row.className = "participant-row";
+  row.className = `participant-row ${group}-row`;
+  row.dataset.participantId = participant.id;
+  row.dataset.group = group;
 
   const label = document.createElement("div");
   label.className = "participant-label";
-  label.textContent = `${participant.id} - ${participant.name} ${participant.surname}`;
+  label.textContent = `${participant.id}`;
 
-  const toggle = document.createElement("div");
-  toggle.className = "toggle-switch";
+  const buttons = document.createElement("div");
+  buttons.className = "toggle-switch";
 
-  const switchLabel = document.createElement("div");
-  switchLabel.className = "switch-label";
-  switchLabel.textContent = "No";
+  for (let i = 1; i <= 7; i++) {
+    const btn = document.createElement("button");
+    btn.className = "switch-label inactive";
+    btn.textContent = i;
+    btn.dataset.rank = i;
 
-  switchLabel.dataset.state = "no";
-  switchLabel.addEventListener("click", () => {
-    if (switchLabel.dataset.state === "no") {
-      switchLabel.dataset.state = "yes";
-      switchLabel.classList.add("active");
-      switchLabel.textContent = "Yes";
-      evaluations[participant.id] = true;
-    } else {
-      switchLabel.dataset.state = "no";
-      switchLabel.classList.remove("active");
-      switchLabel.textContent = "No";
-      evaluations[participant.id] = false;
-    }
-    //checkEnableSave();
-  });
+    btn.addEventListener("click", () => {
+      // Row-level clear
+      const allButtons = row.querySelectorAll(".switch-label");
+      allButtons.forEach(b => b.classList.remove("active"));
 
-  // Başlangıç durumu
-  evaluations[participant.id] = false;
+      // Column-level clear: remove same rank in other rows of this group
+      const allRows = document.querySelectorAll(`.${group}-row`);
+      allRows.forEach(r => {
+        if (r !== row) {
+          const b = r.querySelector(`.switch-label[data-rank='${i}']`);
+          if (b) b.classList.remove("active");
+          const id = r.dataset.participantId;
+          if (selections[id] && selections[id] == i) delete selections[id];
+        }
+      });
 
-  toggle.appendChild(switchLabel);
+      // Save this selection
+      selections[participant.id] = i;
+      btn.classList.add("active");
+      updateVisualFeedback(group);
+      checkEnableSave();
+    });
+
+    buttons.appendChild(btn);
+  }
+
   row.appendChild(label);
-  row.appendChild(toggle);
-
+  row.appendChild(buttons);
   return row;
 }
 
+function updateVisualFeedback(group) {
+  const rows = document.querySelectorAll(`.${group}-row`);
+  const rankSet = new Set();
+  const usedIds = new Set(Object.keys(selections));
+
+  Object.values(selections).forEach(rank => rankSet.add(rank));
+
+  rows.forEach(row => {
+    const id = row.dataset.participantId;
+    const buttons = row.querySelectorAll(".switch-label");
+
+    buttons.forEach(btn => {
+      const rank = btn.dataset.rank;
+      btn.classList.remove("active", "dimmed", "inactive");
+
+      if (selections[id] && selections[id].toString() === rank) {
+        btn.classList.add("active");
+      } else if (rankSet.has(rank) || usedIds.has(id)) {
+        btn.classList.add("dimmed");
+      } else {
+        btn.classList.add("inactive");
+      }
+    });
+  });
+}
+
 function checkEnableSave() {
-  saveBtn.disabled = Object.keys(evaluations).length === 0;
+  const followerIds = Array.from(document.querySelectorAll(".follower-row")).map(r => r.dataset.participantId);
+  const leaderIds = Array.from(document.querySelectorAll(".leader-row")).map(r => r.dataset.participantId);
+
+  const followerRanks = new Set();
+  const leaderRanks = new Set();
+  let valid = true;
+
+  for (let id of followerIds) {
+    const rank = selections[id];
+    if (!rank || followerRanks.has(rank)) {
+      valid = false;
+      break;
+    }
+    followerRanks.add(rank);
+  }
+  for (let id of leaderIds) {
+    const rank = selections[id];
+    if (!rank || leaderRanks.has(rank)) {
+      valid = false;
+      break;
+    }
+    leaderRanks.add(rank);
+  }
+
+  saveBtn.disabled = !valid;
 }
 
 function loadParticipants() {
   const listRef = ref(db, `roundParticipants/${roundName}`);
   get(listRef).then(snapshot => {
-    if (!snapshot.exists()) return showPopup("Participants not found.");
-
+    if (!snapshot.exists()) {
+      showPopup("Other juries did not complete their evaluation. Please try again later.");
+      setTimeout(() => window.location.href = "jury-dashboard.html", 1500);
+      return;
+    }
     const participants = snapshot.val();
-    Object.values(participants).forEach(p => {
-      const row = createParticipantRow(p);
-      if (p.role === "follower") followersDiv.appendChild(row);
-      else leadersDiv.appendChild(row);
-    });
-  }).catch(err => {
-    console.error(err);
-    showPopup("Error during read the data.");
-  });
+    Object.values(participants)
+      .sort((a, b) => a.id - b.id)
+      .forEach(p => {
+        const row = createParticipantRow(p, p.role);
+        if (p.role === "follower") followersDiv.appendChild(row);
+        else leadersDiv.appendChild(row);
+      });
+    checkEnableSave();
+  }).catch(err => console.log(err.message));
 }
 
 saveBtn.addEventListener("click", () => {
-  const saveRef = ref(db, `roundResults/${roundName}/${currentUser}`);
-  const dataToSave = Object.entries(evaluations).map(([id, pass]) => ({
+  const saveRef = ref(db, `roundResults/reround/${currentUser}`);
+  const dataToSave = Object.entries(selections).map(([id, rank]) => ({
     jury: currentUser,
     participantId: id,
-    pass: pass
+    rank: rank
   }));
 
   set(saveRef, dataToSave).then(() => {
     const progressRef = ref(db, `juryProgress/${currentUser}`);
-    get(progressRef).then(snap => {
-      const current = snap.exists() ? snap.val() : 0;
-      const nextRoundName = "round5";
-      set(progressRef, nextRoundName).then(() => {
-        saveBtn.disabled = true;
-        window.location.href = "jury-dashboard.html";
-      });
+    set(progressRef, "end").then(() => {
+      saveBtn.disabled = true;
+      showPopup("Re-Round is completed. Thank you.");
+      window.location.href = "jury-dashboard.html";
     });
   });
 });

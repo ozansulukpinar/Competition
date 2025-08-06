@@ -29,15 +29,14 @@
 .results-container {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
+  gap: 1rem;
   flex-wrap: nowrap;
-  margin-top: 2rem;
+  overflow-x: auto;
 }
 
 .results-table {
-  width: 50%;
-  max-width: 50%;
+  flex: 1 1 50%;
+  min-width: 400px;
 }
 
 .results-table table {
@@ -58,8 +57,12 @@
   font-weight: bold;
 }
 
+.result-table th,
 .result-table td {
-  font-size: 1rem;
+  font-size: 0.8rem;
+  padding: 4px 6px;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .result-table td.check {
@@ -68,6 +71,12 @@
 
 .result-table td.cross {
   background-color: #e57373;
+}
+
+.result-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
 }
 
 .back-btn {

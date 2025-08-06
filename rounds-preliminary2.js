@@ -69,10 +69,12 @@ function loadAllRounds() {
             const followersDiv = document.getElementById(`followers-${roundName}`);
             const leadersDiv = document.getElementById(`leaders-${roundName}`);
 
-            Object.values(data).forEach(participant => {
-                const container = participant.role === 'follower' ? followersDiv : leadersDiv;
-                createParticipantRow(participant, participant.role, container);
-            });
+            Object.values(data)
+                .sort((a, b) => a.id - b.id)
+                .forEach(participant => {
+                    const container = participant.role === 'follower' ? followersDiv : leadersDiv;
+                    createParticipantRow(participant, participant.role, container);
+                });
         });
     });
 
@@ -143,37 +145,29 @@ async function generatePreliminary3FinalistsIfReady() {
         const shuffledFollowers = shuffle([...topFollowers]);
         const shuffledLeaders = shuffle([...topLeaders]);
 
-        const round8 = [
-            ...shuffledFollowers.slice(0, 10),
-            ...shuffledLeaders.slice(0, 10)
-        ];
+        const roundAssignments = {
+            round8: {
+                followers: shuffledFollowers.splice(0, 10),
+                leaders: shuffledLeaders.splice(0, 10)
+            },
+            round9: {
+                followers: shuffledFollowers.splice(0, 10),
+                leaders: shuffledLeaders.splice(0, 10)
+            },
+            round10: {
+                followers: shuffledFollowers,
+                leaders: shuffledLeaders
+            }
+        };
 
-        const round9 = [
-            ...shuffledFollowers.slice(0, 10),
-            ...shuffledLeaders.slice(0, 10)
-        ];
-
-        const round10 = [
-            ...shuffledFollowers,
-            ...shuffledLeaders
-        ];
-
-        // Kaydet
-        await Promise.all([
-            set(ref(db, 'roundParticipants/round8'), round8.reduce((acc, val, i) => {
-                acc[i] = val;
+        for (const [round, data] of Object.entries(roundAssignments)) {
+            const combined = [...data.followers, ...data.leaders];
+            const roundRef = ref(db, `roundParticipants/${round}`);
+            await set(roundRef, combined.reduce((acc, item, i) => {
+                acc[i] = item;
                 return acc;
-            }, {})),
-            set(ref(db, 'roundParticipants/round9'), round9.reduce((acc, val, i) => {
-                acc[i] = val;
-                return acc;
-            }, {})),
-            set(ref(db, 'roundParticipants/round10'), round10.reduce((acc, val, i) => {
-                acc[i] = val;
-                return acc;
-            }, {}))
-        ]);
-
+            }, {}));
+        }
     } catch (err) {
         console.error(err);
         showPopup("Error during save preliminary III competitors");
@@ -199,7 +193,7 @@ function updateSelectionSummary() {
         `So far you have selected ${followers} followers and ${leaders} leaders`;
 }
 
-function validateAndSave() {
+async function validateAndSave() {
     const followers = allEvaluations.filter(e => e.participant.role === 'follower' && e.button.dataset.state === 'on');
     const leaders = allEvaluations.filter(e => e.participant.role === 'leader' && e.button.dataset.state === 'on');
 
@@ -226,12 +220,15 @@ function validateAndSave() {
         passed: button.dataset.state === "on"
     }));
 
-    set(ref(db, `roundResults/preliminary2/${currentUser}`), finalData).then(() => {
-        generatePreliminary3FinalistsIfReady();
-        updateJuryProgress(`${currentUser}`, 'preliminary3');
+    try {
+        await set(ref(db, `roundResults/preliminary2/${currentUser}`), finalData);
+        await updateJuryProgress(`${currentUser}`, 'preliminary3');
+        await generatePreliminary3FinalistsIfReady();
         globalSaveBtn.disabled = true;
         window.location.href = "jury-dashboard.html";
-    });
+    } catch (error) {
+        console.error("Error saving results:", error);
+    }
 }
 
 globalSaveBtn.addEventListener("click", validateAndSave);

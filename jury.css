@@ -36,11 +36,6 @@
   cursor: not-allowed;
 }
 
-#reround {
-  display: none;
-}
-
-/* Animasyon için aktif butonlara özel sınıf */
 .round-btn.active-blink {
   animation: blink 1s infinite;
 }

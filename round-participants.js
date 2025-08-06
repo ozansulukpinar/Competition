@@ -27,7 +27,8 @@ const roundStructure = [
     { title: "Preliminary III.", rounds: ["round8", "round9", "round10"] },
     { title: "Quarter-Finals", rounds: ["round1", "round2", "round3", "round4"] },
     { title: "Semi-Finals", rounds: ["round5", "round6"] },
-    { title: "Final", rounds: ["round7"] }
+    { title: "Final", rounds: ["round7"] },
+    { title: "Re-Round", rounds: ["round20"] }
 ];
 
 function showPopup(popup) {
@@ -50,6 +51,8 @@ participantForm.addEventListener("submit", async e => {
     formWarning.classList.add("hidden");
     const id = participantId.value.trim();
     const role = participantRole.value;
+    const name = "x";
+    const surname = "xx";
 
     if (!id || !role || !selectedRound) {
         formWarning.textContent = "You need to fill the inputs";
@@ -79,7 +82,9 @@ participantForm.addEventListener("submit", async e => {
 
     await set(ref(db, `roundParticipants/${selectedRound}/${newIndex}`), {
         id: parseInt(id),
-        role: role
+        role: role,
+        name: name,
+        surname: surname
     });
 
     hidePopup(formPopup);

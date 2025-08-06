@@ -29,11 +29,10 @@ async function loadData() {
   if (!participantsSnap.exists() || !juriesSnap.exists() || !quarterResultsSnap.exists()) return;
 
   const participants = Object.values(participantsSnap.val());
-  const juries = Object.values(juriesSnap.val()).filter(u => u.role === 'jury');
-  const juryUsernames = juries.map(j => j.username);
+  const resultData = quarterResultsSnap.val();
+  const juryUsernames = Object.keys(resultData);
 
   const allResults = {};
-  const resultData = quarterResultsSnap.val();
 
   for (const [juryUsername, evaluations] of Object.entries(resultData)) {
     evaluations.forEach(evaluation => {
@@ -42,8 +41,8 @@ async function loadData() {
         allResults[pid] = { passCount: 0, votes: {}, data: null };
       }
       allResults[pid].votes[juryUsername] =
-        (allResults[pid].votes[juryUsername] || 0) + (evaluation.pass ? 1 : 0);
-      if (evaluation.pass) allResults[pid].passCount++;
+        (allResults[pid].votes[juryUsername] || 0) + (evaluation.passed ? 1 : 0);
+      if (evaluation.passed) allResults[pid].passCount++;
     });
   }
 
@@ -71,7 +70,7 @@ async function loadData() {
 
 function renderHeader(table, jurors) {
   const tr = document.createElement("tr");
-  tr.innerHTML = `<th>Competitor No</th>
+  tr.innerHTML = `<th>No.</th>
     ${jurors.map(j => `<th>${j}</th>`).join("")}
     `;
   table.appendChild(tr);
@@ -88,14 +87,12 @@ function buildRow(data, votes, passCount, jurors) {
   jurors.forEach(j => {
     const td = document.createElement("td");
     const val = votes[j];
-    if (val > 0) {
+    if (val === 1) {
       td.innerHTML = "✔️";
       td.classList.add("check");
-    } else if (val === 0) {
+    } else {
       td.innerHTML = "❌";
       td.classList.add("cross");
-    } else {
-      td.innerHTML = "-";
     }
     tr.appendChild(td);
   });

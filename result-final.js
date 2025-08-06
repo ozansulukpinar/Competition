@@ -29,9 +29,8 @@ async function loadData() {
   if (!participantsSnap.exists() || !juriesSnap.exists() || !resultsSnap.exists()) return;
 
   const participants = Object.values(participantsSnap.val());
-  const juries = Object.values(juriesSnap.val()).filter(u => u.role === 'jury');
-  const juryUsernames = juries.map(j => j.username);
   const results = resultsSnap.val();
+  const juryUsernames = Object.keys(results);
 
   const allVotes = {};
 
@@ -56,18 +55,16 @@ async function loadData() {
   renderHeader(followersTable, juryUsernames);
   renderHeader(leadersTable, juryUsernames);
 
-  Object.entries(allVotes).forEach(([pid, { total, count, votes, data }]) => {
+  Object.entries(allVotes).forEach(([pid, { total, count, votes, data, rankCounts }]) => {
     if (!data) return;
-    const avg = total / count;
-    const row = buildRow(data, votes, avg, juryUsernames);
-    const obj = { row, avg, rankCounts };
+    const row = buildRow(data, votes, null, juryUsernames);
+    const obj = { row, rankCounts: allVotes[pid].rankCounts };
     if (data.role === "follower") followerRows.push(obj);
     else leaderRows.push(obj);
   });
 
   function compareByRanks(a, b) {
-    if (a.avg !== b.avg) return a.avg - b.avg;
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= 7; i++) {
       const aCount = a.rankCounts[i] || 0;
       const bCount = b.rankCounts[i] || 0;
       if (aCount !== bCount) return bCount - aCount;
@@ -81,9 +78,9 @@ async function loadData() {
 
 function renderHeader(table, jurors) {
   const tr = document.createElement("tr");
-  tr.innerHTML = `<th>Competitor No</th>
+  tr.innerHTML = `<th>No.</th>
     ${jurors.map(j => `<th>${j}</th>`).join("")}
-    <th>Result</th>`;
+    `;
   table.appendChild(tr);
 }
 
@@ -100,10 +97,6 @@ function buildRow(data, votes, average, jurors) {
     td.textContent = votes[j] || "-";
     tr.appendChild(td);
   });
-
-  const tdAvg = document.createElement("td");
-  tdAvg.textContent = average.toFixed(2);
-  tr.appendChild(tdAvg);
 
   return tr;
 }
