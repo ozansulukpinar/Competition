@@ -133,7 +133,7 @@ async function generateQuarterFinalistsIfReady() {
         const topLeaders = enriched
             .filter(p => p.role === 'leader')
             .sort((a, b) => b.score - a.score)
-            .slice(0, 28);
+            .slice(0, 26);
 
         // Karıştırma fonksiyonu
         function shuffle(array) {
