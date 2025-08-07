@@ -216,7 +216,7 @@ async function validateAndSave() {
         return;
     }
 
-    const finalData = [...followers, ...leaders].map(({ participant, button }) => ({
+    const finalData = allEvaluations.map(({ participant, button }) => ({
         jury: currentUser,
         participantId: participant.id,
         name: participant.name,
