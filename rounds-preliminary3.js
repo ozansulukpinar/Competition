@@ -97,9 +97,9 @@ async function generateQuarterFinalistsIfReady() {
         const users = Object.values(usersSnap.val()).filter(u => u.role === 'jury');
         const progress = progressSnap.val();
 
-        // Eğer 5 jüri de "quarter" aşamasındaysa devam edilecek
+        // Eğer 11 jüri de "quarter" aşamasındaysa devam edilecek
         const juriesInQuarter = users.filter(u => progress[u.username] === 'quarter');
-        if (juriesInQuarter.length < 5) return;
+        if (juriesInQuarter.length < 11) return;
 
         const [preliminary3Snap, participantsSnap] = await Promise.all([
             get(ref(db, 'roundResults/preliminary3')),
@@ -206,14 +206,15 @@ async function validateAndSave() {
     const followerDiff = followers.length - 28;
     const leaderDiff = leaders.length - 28;
 
-    if (followerDiff !== 0 || leaderDiff !== 0) {
+    //if (followerDiff !== 0 || leaderDiff !== 0) {
+    if (followerDiff !== 0) {
         let msg = "";
         if (followerDiff !== 0) {
             msg += `${Math.abs(followerDiff)} ${followerDiff > 0 ? "extra followers selected" : "missing followers is there"} . Please ${followerDiff > 0 ? "reduce to" : "increase to"} 28. \n`;
         }
-        if (leaderDiff !== 0) {
-            msg += `${Math.abs(leaderDiff)} ${leaderDiff > 0 ? "extra leaders selected" : "missing leaders is there"} . Please ${leaderDiff > 0 ? "reduce to" : "increase to"} 28.`;
-        }
+        // if (leaderDiff !== 0) {
+        //     msg += `${Math.abs(leaderDiff)} ${leaderDiff > 0 ? "extra leaders selected" : "missing leaders is there"} . Please ${leaderDiff > 0 ? "reduce to" : "increase to"} 28.`;
+        // }
         showPopup(msg);
         return;
     }
